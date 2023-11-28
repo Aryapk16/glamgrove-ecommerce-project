@@ -5,15 +5,21 @@ import (
 
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
+	models "glamgrove/pkg/models/request"
 	service "glamgrove/pkg/usecase/interfaces"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/jinzhu/copier"
 )
 
 type UserHandler struct {
 	userUseCase service.UserUseCase
+}
+
+func NewUserHandler(usecase service.UserUseCase) *UserHandler {
+	return &UserHandler{userUseCase: usecase}
 }
 
 func (u *UserHandler) Login(ctx *gin.Context) {
@@ -40,7 +46,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
 	})
@@ -57,7 +63,6 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 
 	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
 
-	
 	ctx.JSON(200, gin.H{
 		"StatusCode": 200,
 		"Status":     "Successfully Loged In",
@@ -66,18 +71,21 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {
+	var req models.SignUpReq
 	var user domain.Users
 
-	if ctx.BindJSON(&user) != nil {
+	if ctx.BindJSON(&req) != nil {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
 			"msg":        "Cant't Bind The Values",
-			"user":       user,
+			"user":       req,
 		})
 
 		return
 	}
+
+	copier.Copy(&user, req)
 
 	user, err := u.userUseCase.Signup(ctx, user)
 

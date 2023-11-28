@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"glamgrove/pkg/domain"
 	service "glamgrove/pkg/usecase/interfaces"
 	"net/http"
@@ -64,43 +63,44 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 	})
 
 }
-func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
-}
+// func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
-func (a *AdminHandler) AddCategoryGET(ctx *gin.Context) {
+// }
 
-	ctx.JSON(200, gin.H{
-		"StatsuCode":    200,
-		"msg":           "Add Product Page",
-		"category_id":   "int(if you providing a sub category)",
-		"categroy_name": "string(name of the category)",
-	})
-}
-func (a *AdminHandler) AddCategoryPOST(ctx *gin.Context) {
-	fmt.Println("here")
+// func (a *AdminHandler) AddCategoryGET(ctx *gin.Context) {
 
-	var productCategory domain.Category
+// 	ctx.JSON(200, gin.H{
+// 		"StatsuCode":    200,
+// 		"msg":           "Add Product Page",
+// 		"category_id":   "int(if you providing a sub category)",
+// 		"categroy_name": "string(name of the category)",
+// 	})
+// }
+// func (a *AdminHandler) AddCategoryPOST(ctx *gin.Context) {
+// 	fmt.Println("here")
 
-	if ctx.ShouldBindJSON(&productCategory) != nil {
+// 	var productCategory domain.Category
 
-		ctx.JSON(400, gin.H{
-			"Error": "Error to bind the input",
-		})
-		return
-	}
+// 	if ctx.ShouldBindJSON(&productCategory) != nil {
 
-	category, err := a.adminUseCase.AddCategory(ctx, productCategory)
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"msg": "category can't add",
-			"err": err,
-		})
-		return
-	}
+// 		ctx.JSON(400, gin.H{
+// 			"Error": "Error to bind the input",
+// 		})
+// 		return
+// 	}
 
-	ctx.JSON(200, gin.H{
-		"msg":      "category added",
-		"categoty": category,
-	})
-}
+// 	category, err := a.adminUseCase.AddCategory(ctx, productCategory)
+// 	if err != nil {
+// 		ctx.JSON(500, gin.H{
+// 			"msg": "category can't add",
+// 			"err": err,
+// 		})
+// 		return
+// 	}
+
+// 	ctx.JSON(200, gin.H{
+// 		"msg":      "category added",
+// 		"categoty": category,
+// 	})
+// }

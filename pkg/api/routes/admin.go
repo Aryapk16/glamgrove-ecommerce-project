@@ -14,6 +14,6 @@ func AdminRoutes(router *gin.Engine, admin *handler.AdminHandler) {
 	api := router.Group("/admin", middleware.Authentication)
 
 	api.GET("/alluser", admin.Allusers)
-	api.GET("/add-product", admin.AddCategoryGET)
-	api.POST("/add-product", admin.AddCategoryPOST)
-}
+// 	api.GET("/add-product", admin.AddCategoryGET)
+// 	api.POST("/add-product", admin.AddCategoryPOST)
+ }

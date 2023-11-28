@@ -5,6 +5,8 @@ import (
 	"glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
 
+	"glamgrove/pkg/domain"
+
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -52,23 +54,23 @@ func (c *adminUseCase) FindAllUser(ctx context.Context) ([]domain.Users, error) 
 	return users, err
 }
 
-func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {
+// func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {
 
-	//validate the given category name
+// 	//validate the given category name
 
-	err := validator.New().Struct(category)
+// 	err := validator.New().Struct(category)
 
-	if err != nil {
-		errMap := map[string]string{}
+// 	if err != nil {
+// 		errMap := map[string]string{}
 
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
+// 		for _, er := range err.(validator.ValidationErrors) {
+// 			errMap[er.Field()] = "Enter this field properly"
+// 		}
 
-		return category, errMap
-	}
+// 		return category, errMap
+// 	}
 
-	productCategory, dbErr := c.adminRepo.AddCategory(ctx, category)
+// 	productCategory, dbErr := c.adminRepo.AddCategory(ctx, category)
 
-	return productCategory, dbErr
-}
+// 	return productCategory, dbErr
+// }

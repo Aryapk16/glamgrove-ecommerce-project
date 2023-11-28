@@ -11,11 +11,13 @@ type Config struct {
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
+
+	JWT_SECRET_KEY string `mapstructure:"JWT_SECRET_KEY"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_SECRET_KEY",
 }
 
 func LoadConfig() (config Config, err error) {
@@ -44,4 +46,9 @@ func LoadConfig() (config Config, err error) {
 
 	//successfully loaded the env values into struct config
 	return config, nil
+}
+
+func GetJWTCofig() string {
+	config := &Config{}
+	return config.JWT_SECRET_KEY
 }
