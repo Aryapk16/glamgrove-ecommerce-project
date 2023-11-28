@@ -5,7 +5,8 @@ import (
 
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
-	models "glamgrove/pkg/models/request"
+	"glamgrove/pkg/models/request"
+	"glamgrove/pkg/models/response"
 	service "glamgrove/pkg/usecase/interfaces"
 	"net/http"
 
@@ -71,7 +72,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 }
 
 func (u *UserHandler) SignUp(ctx *gin.Context) {
-	var req models.SignUpReq
+	var req request.SignUpReq
 	var user domain.Users
 
 	if ctx.BindJSON(&req) != nil {
@@ -98,12 +99,15 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully Account Created",
-		"user":       user,
-	})
+	// ctx.JSON(200, gin.H{
+	// 	"StatusCode": 200,
+	// 	"msg":        "Successfully Account Created",
+	// 	"user":       user,
+	// })
+	response := response.SuccessResponse(200, "Account created successfuly", user)
+	ctx.JSON(http.StatusOK, response)
 }
+
 
 func (u *UserHandler) Home(ctx *gin.Context) {
 

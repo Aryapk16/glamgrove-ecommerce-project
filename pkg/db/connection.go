@@ -22,9 +22,6 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 	db.AutoMigrate(
 		//user
 		domain.Users{},
-		domain.Country{},
-		domain.Address{},
-		domain.UserAdress{},
 
 		//admin
 		domain.Admin{},

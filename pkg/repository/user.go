@@ -18,7 +18,7 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 
 func (c *userDatabase) FindUser(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	// check id,email,phone any of then match i db
+	// Check user already exist or not
 	c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user)
 
 	// if given userid then check mail is stil there otherwise phone or id
