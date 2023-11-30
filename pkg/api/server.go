@@ -19,7 +19,7 @@ func NewServerHTTP(userHandler *handler.UserHandler) *ServerHTTP {
 
 	//two main routes `\` -> user ; `\admin`-> admin
 	routes.UserRoutes(engine, userHandler)
-	//routes.AdminRoutes(engine, adminHandler)
+	
 
 	return &ServerHTTP{engine: engine}
 }

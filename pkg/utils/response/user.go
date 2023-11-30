@@ -12,25 +12,22 @@ type Response struct {
 func ErrorResponse(statusCode int, message string, err string, data interface{}) Response {
 
 	spiltedError := strings.Split(err, "\n")
-	return Response{
+	res := Response{
 		StatusCode: statusCode,
 		Message:    message,
 		Errors:     spiltedError,
 		Data:       data,
 	}
+	return res
 }
 
 func SuccessResponse(statusCode int, message string, data ...interface{}) Response {
 
-	return Response{
+	res := Response{
 		StatusCode: statusCode,
 		Message:    message,
 		Errors:     nil,
 		Data:       data,
 	}
-}
-
-type SignUpReq struct {
-	ID       uint   `json:"id"`
-	UserName string `json:"user_name" copier:"must"`
+	return res
 }

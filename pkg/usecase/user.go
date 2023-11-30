@@ -20,16 +20,6 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 
 func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	// first validate the struct(user)
-	if err := validator.New().Struct(user); err != nil {
-		errMap := map[string]string{}
-
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-		return user, errMap
-	}
-
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
 	// check user found or not
@@ -43,8 +33,14 @@ func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Use
 	}
 
 	//check the user password with dbPassword
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(dbUser.Password)) != nil {
-		return user, map[string]string{"Error": "Entered Password is wrong"}
+
+	err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return user, map[string]string{"Error": "Entered Password is wrong"}
+		}
+		// Handle other potential errors more specifically if needed
+		return user, map[string]string{"Error": "Error comparing passwords"}
 	}
 
 	// everything is ok then return dbUser
@@ -64,9 +60,15 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Us
 		return user, errorMap
 	}
 
-	user, err := c.userRepo.SaveUser(ctx, user)
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+	if err != nil {
+		return domain.Users{}, err
+	}
 
-	return user, err
+	user.Password = string(hash)
+	user, dbErr := c.userRepo.SaveUser(ctx, user)
+
+	return user, dbErr
 }
 
 func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {

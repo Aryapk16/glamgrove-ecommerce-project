@@ -8,9 +8,7 @@ type SignUpReq struct {
 	Phone     string `json:"phone" gorm:"unique;not null" validate:"required,min=10,max=10"`
 	Password  string `json:"password" gorm:"not null" validate:"required"`
 }
-type LoginData struct {
-	UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
-	//Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
+type LoginReq struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	Password string `json:"Password" binding:"required,min=3,max=30"`
 }

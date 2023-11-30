@@ -11,3 +11,7 @@ type Users struct {
 	BlockStatus bool   `json:"block_status" gorm:"not null"`
 }
 
+// type Log struct{
+// 	Email       string `json:"email" gorm:"unique;not null" validate:"required,email"`
+// 	Password    string `json:"password" gorm:"not null" validate:"required"`
+// }

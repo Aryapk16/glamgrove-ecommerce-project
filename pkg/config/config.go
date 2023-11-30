@@ -52,3 +52,4 @@ func GetJWTCofig() string {
 	config := &Config{}
 	return config.JWT_SECRET_KEY
 }
+

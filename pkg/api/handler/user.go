@@ -5,9 +5,9 @@ import (
 
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
-	"glamgrove/pkg/models/request"
-	"glamgrove/pkg/models/response"
 	service "glamgrove/pkg/usecase/interfaces"
+	"glamgrove/pkg/utils/request"
+	"glamgrove/pkg/utils/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,9 +25,9 @@ func NewUserHandler(usecase service.UserUseCase) *UserHandler {
 
 func (u *UserHandler) Login(ctx *gin.Context) {
 
-	var user domain.Users
+	var loginReq request.LoginReq
 
-	if ctx.ShouldBindJSON(&user) != nil {
+	if ctx.ShouldBindJSON(&loginReq) != nil {
 
 		ctx.JSON(404, gin.H{
 			"StatusCode": 400,
@@ -36,6 +36,10 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		})
 		return
 	}
+
+	var user domain.Users
+
+	copier.Copy(&user, loginReq)
 
 	user, err := u.userUseCase.Login(ctx, user)
 
@@ -66,8 +70,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 
 	ctx.JSON(200, gin.H{
 		"StatusCode": 200,
-		"Status":     "Successfully Loged In",
-		"user":       user,
+		"Status":     "Login success",
 	})
 }
 
@@ -104,29 +107,31 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 	// 	"msg":        "Successfully Account Created",
 	// 	"user":       user,
 	// })
-	response := response.SuccessResponse(200, "Account created successfuly", user)
+	response := response.SuccessResponse(200, "Account created successfuly", gin.H{
+		"ID":   user.ID,
+		"user": user.FirstName + " " + user.LastName,
+	})
 	ctx.JSON(http.StatusOK, response)
 }
 
+// func (u *UserHandler) Home(ctx *gin.Context) {
 
-func (u *UserHandler) Home(ctx *gin.Context) {
+// 	products, err := u.userUseCase.ShowAllProducts(ctx)
 
-	products, err := u.userUseCase.ShowAllProducts(ctx)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{
+// 			"StatusCode": 500,
+// 			"error":      err,
+// 		})
+// 		return
+// 	}
 
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"error":      err,
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Welcome Home",
-		"Products":   products,
-	})
-}
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"StatusCode": 200,
+// 		"msg":        "Welcome Home",
+// 		"Products":   products,
+// 	})
+// }
 
 func (u *UserHandler) Logout(ctx gin.Context) {
 

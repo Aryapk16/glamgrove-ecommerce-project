@@ -23,7 +23,7 @@ func (c *userDatabase) FindUser(ctx context.Context, user domain.Users) (domain.
 
 	// if given userid then check mail is stil there otherwise phone or id
 	if user.ID == 0 || user.Email == "" || user.Phone == "" {
-		return user, map[string]string{"Error": "Can't find the user"}
+		return domain.Users{}, map[string]string{"Error": "Can't find the user"}
 	}
 	// if found the user then return user with nil
 	return user, nil

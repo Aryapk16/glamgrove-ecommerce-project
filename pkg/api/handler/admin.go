@@ -16,13 +16,13 @@ func (a *AdminHandler) Login(ctx *gin.Context) {
 
 	var admin domain.Admin
 
-	if ctx.ShouldBindJSON(&admin) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Can't bind the values invalid inputs",
-		})
-		return
-	}
+	// if ctx.ShouldBindJSON(&admin) != nil {
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{
+	// 		"StatusCode": 400,
+	// 		"msg":        "Can't bind the values invalid inputs",
+	// 	})
+	// 	return 
+	// }
 
 	admin, err := a.adminUseCase.Login(ctx, admin)
 
@@ -32,6 +32,7 @@ func (a *AdminHandler) Login(ctx *gin.Context) {
 			"msg":        "Can't login",
 			"err":        err,
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
