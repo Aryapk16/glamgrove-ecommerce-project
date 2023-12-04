@@ -19,8 +19,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		db.ConnectDatbase,
 		userRepo.NewUserRepository,
 		userUseCase.NewUserUseCase,
-		handler.NewUserHandler,
-
+		handler.NewUserHandler,		
 		http.NewServerHTTP,
 	)
 	return &http.ServerHTTP{}, nil

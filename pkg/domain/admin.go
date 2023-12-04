@@ -1,6 +1,6 @@
 package domain
 
-type Admin struct {
+type AdminDetails struct {
 	ID       uint   `json:"id" gorm:"primaryKey;not null"`
 	UserName string `json:"user_name" gorm:"not null"`
 	Email    string `json:"email" gorm:"not null" validate:"email"`

@@ -2,75 +2,36 @@ package usecase
 
 import (
 	"context"
-	"glamgrove/pkg/repository/interfaces"
+	"errors"
+	"fmt"
+	"glamgrove/pkg/domain"
+	interfaces "glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
 
-	"glamgrove/pkg/domain"
-
-	"github.com/go-playground/validator/v10"
-	"golang.org/x/crypto/bcrypt"
+	"glamgrove/pkg/utils/request"
 )
 
-type adminUseCase struct {
+type AdminUsecase struct {
 	adminRepo interfaces.AdminRepository
 }
 
-func NewAdminUseCase(repo interfaces.AdminRepository) service.AdminUseCase {
-
-	return &adminUseCase{adminRepo: repo}
+func NewadminUsecase(repo interfaces.AdminRepository) service.AdminUsecase {
+	return &AdminUsecase{adminRepo: repo}
 }
 
-func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Admin, any) {
+func (ad *AdminUsecase) AdminLogin(ctx context.Context, admin request.AdminLoginRequest) (domain.AdminDetails, error) {
+	dbAdmin, _ := ad.adminRepo.FindAdmin(ctx, admin.Username)
 
-	//validte the  admin
-	err := validator.New().Struct(admin)
+	// check password matching
 
-	if err != nil {
-		errMap := map[string]string{}
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-		return admin, errMap
-	}
-	// get the admin from database
-	dbAdmin, dbErr := c.adminRepo.FindAdmin(ctx, admin)
+	// if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
+	// 	return domain.AdminDetails{}, errors.New("password is not correct")
+	// }
 
-	if dbErr != nil {
-		return admin, map[string]string{"msg": "db error"}
+	if dbAdmin.Password != admin.Password {
+		return domain.AdminDetails{}, errors.New("password is not correct")
 	}
 
-	// check db password with given password
-	if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
-		return admin, map[string]string{"msg": "Entered Passsword is incorrect"}
-	}
-
+	fmt.Println("hii")
 	return dbAdmin, nil
 }
-
-func (c *adminUseCase) FindAllUser(ctx context.Context) ([]domain.Users, error) {
-
-	users, err := c.adminRepo.FindAllUser(ctx)
-
-	return users, err
-}
-
-// func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {
-
-// 	//validate the given category name
-
-// 	err := validator.New().Struct(category)
-
-// 	if err != nil {
-// 		errMap := map[string]string{}
-
-// 		for _, er := range err.(validator.ValidationErrors) {
-// 			errMap[er.Field()] = "Enter this field properly"
-// 		}
-
-// 		return category, errMap
-// 	}
-
-// 	productCategory, dbErr := c.adminRepo.AddCategory(ctx, category)
-
-// 	return productCategory, dbErr
-// }

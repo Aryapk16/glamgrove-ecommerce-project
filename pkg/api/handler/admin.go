@@ -1,107 +1,73 @@
 package handler
 
 import (
-	"glamgrove/pkg/domain"
-	service "glamgrove/pkg/usecase/interfaces"
+	"errors"
+	"glamgrove/pkg/auth"
+	services "glamgrove/pkg/usecase/interfaces"
+
+	"glamgrove/pkg/utils"
+	"glamgrove/pkg/utils/request"
+	"glamgrove/pkg/utils/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AdminHandler struct {
-	adminUseCase service.AdminUseCase
+	AdminUsecase services.AdminUsecase
 }
 
-func (a *AdminHandler) Login(ctx *gin.Context) {
+func NewAdminHandler(usecase services.AdminUsecase) *AdminHandler {
+	return &AdminHandler{AdminUsecase: usecase}
+}
 
-	var admin domain.Admin
+func (ad *AdminHandler) AdminLogin(ctx *gin.Context) {
 
-	// if ctx.ShouldBindJSON(&admin) != nil {
-	// 	ctx.JSON(http.StatusBadRequest, gin.H{
-	// 		"StatusCode": 400,
-	// 		"msg":        "Can't bind the values invalid inputs",
-	// 	})
-	// 	return 
-	// }
+	var body request.AdminLoginRequest
 
-	admin, err := a.adminUseCase.Login(ctx, admin)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Can't login",
-			"err":        err,
-		})
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		res := response.ErrorResponse(400, "error while getting  the data from user side", err.Error(), body)
+		utils.ResponseJSON(ctx, res)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully loged in",
-		"admin":      admin,
-	})
-}
-
-func (a *AdminHandler) Home(ctx *gin.Context) {
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Welcome to Admin Panel",
-	})
-}
-func (a *AdminHandler) Allusers(ctx *gin.Context) {
-
-	users, err := a.adminUseCase.FindAllUser(ctx)
-
+	if body.Username == " " && body.Password == " " {
+		err := errors.New("enter username and password")
+		res := response.ErrorResponse(400, "invalid input", err.Error(), nil)
+		utils.ResponseJSON(ctx, res)
+		return
+	}
+	adminData, err := ad.AdminUsecase.AdminLogin(ctx, body)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error ": err.Error(),
-		})
+		response := response.ErrorResponse(400, "Enter valid username", err.Error(), "login failed")
+
+		ctx.JSON(400, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"users": users,
-	})
+	if _, err := ad.AdminUsecase.AdminLogin(ctx, body); err != nil {
+		response := response.ErrorResponse(400, "failed to login", err.Error(), "login failed")
 
+		ctx.JSON(400, response)
+		return
+	}
+
+	message := "Successfully logged in as " + body.Username
+
+	//generate tokenstring with jwt
+	tokenString, err := auth.GenerateJWT(int(adminData.ID))
+	if err != nil {
+		response := response.ErrorResponse(400, "failed to login", err.Error(), "login failed")
+
+		ctx.JSON(400, response)
+		return
+	}
+	//set cookie
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("Admin_Authorization", tokenString["accessToken"], 3600*24*30, "/", " ", false, true)
+
+	response := response.SuccessResponse(200, "Successfully logged in", message)
+
+	ctx.JSON(http.StatusOK, response)
 }
-
-// func (a *AdminHandler) BlockUser(ctx *gin.Context) {
-
-// }
-
-// func (a *AdminHandler) AddCategoryGET(ctx *gin.Context) {
-
-// 	ctx.JSON(200, gin.H{
-// 		"StatsuCode":    200,
-// 		"msg":           "Add Product Page",
-// 		"category_id":   "int(if you providing a sub category)",
-// 		"categroy_name": "string(name of the category)",
-// 	})
-// }
-// func (a *AdminHandler) AddCategoryPOST(ctx *gin.Context) {
-// 	fmt.Println("here")
-
-// 	var productCategory domain.Category
-
-// 	if ctx.ShouldBindJSON(&productCategory) != nil {
-
-// 		ctx.JSON(400, gin.H{
-// 			"Error": "Error to bind the input",
-// 		})
-// 		return
-// 	}
-
-// 	category, err := a.adminUseCase.AddCategory(ctx, productCategory)
-// 	if err != nil {
-// 		ctx.JSON(500, gin.H{
-// 			"msg": "category can't add",
-// 			"err": err,
-// 		})
-// 		return
-// 	}
-
-// 	ctx.JSON(200, gin.H{
-// 		"msg":      "category added",
-// 		"categoty": category,
-// 	})
-// }

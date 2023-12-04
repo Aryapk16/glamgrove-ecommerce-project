@@ -11,7 +11,7 @@ type ServerHTTP struct {
 	engine *gin.Engine
 }
 
-func NewServerHTTP(userHandler *handler.UserHandler) *ServerHTTP {
+func NewServerHTTP(userHandler *handler.UserHandler, adminHandler *handler.AdminHandler) *ServerHTTP {
 
 	engine := gin.New()
 
@@ -19,6 +19,7 @@ func NewServerHTTP(userHandler *handler.UserHandler) *ServerHTTP {
 
 	//two main routes `\` -> user ; `\admin`-> admin
 	routes.UserRoutes(engine, userHandler)
+	routes.AdminRoutes(engine, adminHandler)
 	
 
 	return &ServerHTTP{engine: engine}

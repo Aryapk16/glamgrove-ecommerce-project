@@ -14,9 +14,13 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", cfg.DBHost, cfg.DBUser, cfg.DBName, cfg.DBPort, cfg.DBPassword)
 
+	fmt.Println("Connection string", dsn)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
+
+	fmt.Println("Error is", err)
 
 	// migrate the database tables
 	db.AutoMigrate(
@@ -24,7 +28,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.Users{},
 
 		//admin
-		domain.Admin{},
+		domain.AdminDetails{},
 
 		//product
 		domain.ProductCategory{},

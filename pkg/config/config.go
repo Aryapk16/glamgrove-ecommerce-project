@@ -13,12 +13,16 @@ type Config struct {
 	DBPort     string `mapstructure:"DB_PORT"`
 
 	JWT_SECRET_KEY string `mapstructure:"JWT_SECRET_KEY"`
+	// AccountSid       string `mapstructure:"ACCOUNT_SID"`
+	// AuthToken        string `mapstructure:"AUTH_TOKEN"`
+	// VerifyServiceSid string `mapstructure:"VERIFY_SERVICE_ID"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
 	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_SECRET_KEY",
 }
+var config Config
 
 func LoadConfig() (config Config, err error) {
 
@@ -33,23 +37,27 @@ func LoadConfig() (config Config, err error) {
 		}
 	}
 
-	// then unmarshel the viper into config variable
-	if err := viper.Unmarshal(&config); err != nil {
-		return config, err // error when unmarsheling the viper to env
+	// Validate the Config struct using the validator package
+	validate := validator.New()
+	if err := validate.Struct(&config); err != nil {
+		return config, err
 	}
 
-	// atlast validate the config file using validator pakage
-	// create instance and direct validte
-	if err := validator.New().Struct(config); err != nil {
-		return config, err // error when validating struct
-	}
+		// Unmarshal the configuration into the Config struct
+		if err := viper.Unmarshal(&config); err != nil {
+			return config, err
+		}
 
 	//successfully loaded the env values into struct config
 	return config, nil
 }
 
-func GetJWTCofig() string {
-	config := &Config{}
+func GetJWTConfig() string {
+	//config := &Config{}
 	return config.JWT_SECRET_KEY
 }
 
+// func GetTwilioconfig() (string, string, string) {
+// 	return config.AccountSid, config.AuthToken, config.VerifyServiceSid
+
+// }

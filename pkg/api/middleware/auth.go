@@ -28,7 +28,7 @@ func validteToken(token string) error {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 
-		return []byte(config.GetJWTCofig()), nil
+		return []byte(config.GetJWTConfig()), nil
 	})
 
 	return err

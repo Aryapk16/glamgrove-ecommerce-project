@@ -25,7 +25,7 @@ func NewUserHandler(usecase service.UserUseCase) *UserHandler {
 
 func (u *UserHandler) Login(ctx *gin.Context) {
 
-	var loginReq request.LoginReq
+	var loginReq request.LoginRequest
 
 	if ctx.ShouldBindJSON(&loginReq) != nil {
 
@@ -57,7 +57,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 	})
 
 	//sign the token
-	signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+	signedString, err := token.SignedString([]byte(config.GetJWTConfig()))
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -133,6 +133,6 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 // 	})
 // }
 
-func (u *UserHandler) Logout(ctx gin.Context) {
+// func (u *UserHandler) Logout(ctx gin.Context) {
 
-}
+// }

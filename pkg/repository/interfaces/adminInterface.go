@@ -6,7 +6,7 @@ import (
 )
 
 type AdminRepository interface {
-	FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, any)
-	FindAllUser(ctx context.Context) ([]domain.Users, error)
-	//AddCategory(ctx context.Context, productCategory domain.Category) (domain.Category, any)
+	FindAdmin(c context.Context, Username string) (domain.AdminDetails, error)
+	AddAdmin(c context.Context, admin domain.AdminDetails) (domain.AdminDetails, error)
+	FindByUsername(c context.Context, Username string) (domain.AdminDetails, error)
 }

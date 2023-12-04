@@ -23,8 +23,14 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		return nil, err
 	}
 	userRepository := repository.NewUserRepository(gormDB)
+	adminRepo := repository.NewadminRepository(gormDB)
+
 	userUseCase := usecase.NewUserUseCase(userRepository)
+	adminUseCase := usecase.NewadminUsecase(adminRepo)
+
 	userHandler := handler.NewUserHandler(userUseCase)
-	serverHTTP := http.NewServerHTTP(userHandler)
+	adminHandler := handler.NewAdminHandler(adminUseCase)
+
+	serverHTTP := http.NewServerHTTP(userHandler,adminHandler)
 	return serverHTTP, nil
 }
