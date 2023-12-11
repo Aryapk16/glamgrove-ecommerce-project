@@ -3,12 +3,14 @@ package main
 import (
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/di"
+	"glamgrove/pkg/verification"
 	"log"
 )
 
 func main() {
 	cfg, err := config.LoadConfig()
 
+	verification.InitTwilio(cfg)
 	if err != nil {
 		log.Fatal("Error to load the config: ", err)
 	}

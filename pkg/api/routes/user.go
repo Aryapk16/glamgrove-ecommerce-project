@@ -10,6 +10,7 @@ func UserRoutes(router *gin.Engine, user *handler.UserHandler) {
 
 	router.POST("/login", user.Login)
 	router.POST("/signup", user.SignUp)
+	router.POST("/verifyOTP", user.VerifyOTP)
 
 	//api := router.Group("/", middleware.Authentication)
 	//

@@ -10,7 +10,7 @@ import (
 )
 
 // func to connect data base using config(database config) and return address of a new instnce of gorm DB
-func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
+func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", cfg.DBHost, cfg.DBUser, cfg.DBName, cfg.DBPort, cfg.DBPassword)
 
@@ -25,19 +25,16 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 	// migrate the database tables
 	db.AutoMigrate(
 		//user
-		domain.Users{},
+		domain.User{},
 
 		//admin
-		domain.AdminDetails{},
+		domain.Admin{},
 
 		//product
-		domain.ProductCategory{},
 		domain.Product{},
-		domain.Variation{},
-		domain.VariationOption{},
-		domain.ProductItem{},
-		domain.ProductConfiguraion{},
-		domain.ProductImage{},
+		
+
+		domain.Category{},
 	)
 
 	return db, err

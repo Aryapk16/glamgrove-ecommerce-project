@@ -18,18 +18,22 @@ import (
 // Injectors from wire.go:
 
 func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
-	gormDB, err := db.ConnectDatbase(cfg)
+	gormDB, err := db.ConnectDatabase(cfg)
 	if err != nil {
 		return nil, err
 	}
 	userRepository := repository.NewUserRepository(gormDB)
-	adminRepo := repository.NewadminRepository(gormDB)
+	adminRepository := repository.NewadminRepository(gormDB)
+    //productRepository := repository.NewProductRepository(gormDB)
+
 
 	userUseCase := usecase.NewUserUseCase(userRepository)
-	adminUseCase := usecase.NewadminUsecase(adminRepo)
+	adminUseCase := usecase.NewadminUseCase(adminRepository)
+	//productUseCase := usecase.NewProductUseCase(productRepository)
 
 	userHandler := handler.NewUserHandler(userUseCase)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
+	//productHandler := handler.NewProductHandler(productUseCase)
 
 	serverHTTP := http.NewServerHTTP(userHandler,adminHandler)
 	return serverHTTP, nil

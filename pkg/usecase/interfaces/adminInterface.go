@@ -6,8 +6,8 @@ import (
 	"glamgrove/pkg/utils/request"
 )
 
-type AdminUsecase interface {
-	AdminLogin(ctx context.Context, admin request.AdminLoginRequest) (domain.AdminDetails, error)
+type AdminUseCase interface {
+	AdminLogin(ctx context.Context, admin request.AdminLoginRequest) (domain.Admin, error)
 	// FindAllUser(ctx context.Context) ([]domain.Users, error)
 
 	//AddCategory(ctx context.Context, productCategory domain.Category) (domain.Category, any)

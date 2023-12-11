@@ -1,35 +1,93 @@
 package middleware
 
 import (
-	"fmt"
+	"errors"
+	"glamgrove/pkg/auth"
 	"net/http"
-
-	"glamgrove/pkg/config"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
 
-func Authentication(ctx *gin.Context) {
-
-	token, _ := ctx.Cookie("jwt-auth")
-
-	if err := validteToken(token); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"StatusCode": 401,
-			"msg":        "Unauthorized user",
-		})
-	}
+func AuthenticateUser(c *gin.Context) {
+	RequireAuth(c, "User_Authorization")
 }
 
-func validteToken(token string) error {
-	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
+func AuthenticateSignup(c *gin.Context) {
+	RequireAuth(c, "Signup_Authorization")
+}
 
-		return []byte(config.GetJWTConfig()), nil
-	})
+func RequireAuth(c *gin.Context, authname string) {
 
-	return err
+	tokenString, err := c.Cookie(authname)
+
+	if err != nil || tokenString == " " {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "Error while fetching cookie",
+			"error":      err,
+		})
+		return
+	}
+
+	claims, err := auth.Validatetoken(tokenString)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "error while validating",
+		})
+		return
+	}
+	//expiry time
+	if float64(time.Now().Unix()) > claims["exp"].(float64) {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "Unauthorized User Please Login",
+		})
+		return
+	}
+
+	c.Set("userId", claims["sub"])
+
+}
+
+// to fetch id from jwt
+func GetId(c *gin.Context, authname string) (float64, error) {
+	cookie, err := c.Request.Cookie(authname)
+	if err != nil {
+		return 0, errors.New("can't find cookie")
+	}
+
+	tokenString := cookie.Value
+	claims, err := auth.Validatetoken(tokenString)
+	if err != nil {
+		return 0, errors.New("can't validate cookie")
+	}
+
+	id, ok := claims["sub"].(float64)
+	if !ok {
+		return 0, errors.New("can't find id")
+	}
+
+	return id, nil
+}
+
+// to fetch phone number from jwt
+func GetPhn(c *gin.Context, authname string) (string, error) {
+	cookie, err := c.Request.Cookie(authname)
+	if err != nil {
+		return " ", errors.New("can't find cookie")
+	}
+
+	tokenString := cookie.Value
+	claims, err := auth.Validatetoken(tokenString)
+	if err != nil {
+		return " ", errors.New("can't validate cookie")
+	}
+
+	phn, ok := claims["sub"].(string)
+	if !ok {
+		return " ", errors.New("can't find phn")
+	}
+	return phn, nil
 }

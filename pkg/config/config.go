@@ -12,15 +12,15 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
 
-	JWT_SECRET_KEY string `mapstructure:"JWT_SECRET_KEY"`
-	// AccountSid       string `mapstructure:"ACCOUNT_SID"`
-	// AuthToken        string `mapstructure:"AUTH_TOKEN"`
-	// VerifyServiceSid string `mapstructure:"VERIFY_SERVICE_ID"`
+	JWT_SECRET_KEY   string `mapstructure:"JWT_SECRET_KEY"`
+	AccountSid       string `mapstructure:"ACCOUNT_SID"`
+	AuthToken        string `mapstructure:"AUTH_TOKEN"`
+	VerifyServiceSid string `mapstructure:"VERIFY_SERVICE_ID"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_SECRET_KEY",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_SECRET_KEY", "ACCOUNT_SID", "AUTH_TOKEN", "VERIFY_SERVICE_ID",
 }
 var config Config
 
@@ -28,7 +28,10 @@ func LoadConfig() (config Config, err error) {
 
 	viper.AddConfigPath("./")   // add the config path
 	viper.SetConfigFile(".env") // set up the file name to viper
-	err = viper.ReadInConfig()  // read the env file
+	err = viper.ReadInConfig()
+	if err != nil {
+		return Config{}, err
+	} // read the env file
 
 	// range through through the envNames and take each envName and bind that env variable to viper
 	for _, env := range envsNames {
@@ -43,10 +46,10 @@ func LoadConfig() (config Config, err error) {
 		return config, err
 	}
 
-		// Unmarshal the configuration into the Config struct
-		if err := viper.Unmarshal(&config); err != nil {
-			return config, err
-		}
+	// Unmarshal the configuration into the Config struct
+	if err := viper.Unmarshal(&config); err != nil {
+		return config, err
+	}
 
 	//successfully loaded the env values into struct config
 	return config, nil
@@ -56,8 +59,3 @@ func GetJWTConfig() string {
 	//config := &Config{}
 	return config.JWT_SECRET_KEY
 }
-
-// func GetTwilioconfig() (string, string, string) {
-// 	return config.AccountSid, config.AuthToken, config.VerifyServiceSid
-
-// }
