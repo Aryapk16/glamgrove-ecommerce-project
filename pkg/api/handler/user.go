@@ -117,45 +117,8 @@ func (u *UserHandler) SignUp(ctx *gin.Context) {
 
 }
 
-// var req request.SignUpReq
-// var user domain.User
 
-// if ctx.BindJSON(&req) != nil {
 
-// 	ctx.JSON(http.StatusBadRequest, gin.H{
-// 		"StatusCode": 400,
-// 		"msg":        "Cant't Bind The Values",
-// 		"user":       req,
-// 	})
-
-// 	return
-// }
-
-// copier.Copy(&user, req)
-
-// user, err := u.userUseCase.Signup(ctx, user)
-
-// if err != nil {
-// 	fmt.Println("Handler: Error is", err)
-// 	ctx.JSON(http.StatusBadRequest, gin.H{
-// 		"StatusCode": 400,
-// 		"msg":        "Invalid Inputs",
-// 		"error":      err.Error(),
-// 	})
-// 	return
-// }
-
-// ctx.JSON(200, gin.H{
-// 	"StatusCode": 200,
-// 	"msg":        "Successfully Account Created",
-// 	"user":       user,
-// })
-// response := response.SuccessResponse(200, "Account created successfuly", gin.H{
-// 	"ID":   user.ID,
-// 	"user": user.FirstName + " " + user.LastName,
-// })
-// ctx.JSON(http.StatusOK, response)
-// }
 
 func (us *UserHandler) VerifyOTP(c *gin.Context) {
 

@@ -11,15 +11,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userUserCase struct {
+type userUseCase struct {
 	userRepo interfaces.UserRepository
 }
 
 func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
-	return &userUserCase{userRepo: repo}
+	return &userUseCase{userRepo: repo}
 }
 
-func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User, any) {
+func (c *userUseCase) Login(ctx context.Context, user domain.User) (domain.User, any) {
 
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
@@ -47,17 +47,12 @@ func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User
 	return dbUser, nil
 }
 
-func (c *userUserCase) Signup(ctx context.Context, user domain.User) (domain.User, error) {
+func (c *userUseCase) Signup(ctx context.Context, user domain.User) (domain.User, error) {
 
 	// validate user values
 	fmt.Println(user)
 	if err := validator.New().Struct(user); err != nil {
 
-		// errorMap := map[string]string{}
-		// for _, er := range err.(validator.ValidationErrors) {
-		// 	errorMap[er.Field()] = "Enter This field Properly"
-		// }
-		// return user, errors.New((fmt.Sprintf("%v", errorMap)))
 		return user, err
 	}
 
@@ -73,7 +68,7 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) (domain.Use
 	return user, dbErr
 }
 
-func (c *userUserCase) VerifyOTP(phone string) error {
+func (c *userUseCase) VerifyOTP(phone string) error {
 	err := c.userRepo.UpdateSignupstatus(phone)
 
 	if err != nil {
@@ -84,7 +79,7 @@ func (c *userUserCase) VerifyOTP(phone string) error {
 
 }
 
-func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {
+func (c *userUseCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {
 
 	products, err := c.userRepo.GetAllProducts(ctx)
 
@@ -94,7 +89,7 @@ func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, a
 
 	return products, err
 }
-func (c *userUserCase) GetProductItems(ctx context.Context, product domain.Product) ([]domain.Product, any) {
+func (c *userUseCase) GetProductItems(ctx context.Context, product domain.Product) ([]domain.Product, any) {
 
 	productsItem, err := c.userRepo.GetProductItems(ctx, product)
 
