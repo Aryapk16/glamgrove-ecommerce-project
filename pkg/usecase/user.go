@@ -2,100 +2,79 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
+	"glamgrove/pkg/utils/response"
+	"glamgrove/pkg/verify"
 
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type userUseCase struct {
-	userRepo interfaces.UserRepository
+type UserUseCase struct {
+	userRepository interfaces.UserRepository
 }
 
-func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
-	return &userUseCase{userRepo: repo}
+func NewUserUseCase(repo interfaces.UserRepository) service.UserService {
+	return &UserUseCase{userRepository: repo}
 }
-
-func (c *userUseCase) Login(ctx context.Context, user domain.User) (domain.User, any) {
-
-	dbUser, dberr := c.userRepo.FindUser(ctx, user)
-
-	// check user found or not
-	if dberr != nil {
-		return user, dberr
-	}
-
-	if user.Status == "BLOCKED" {
-		return user, map[string]string{"Error": "User Blocked By Admin"}
-	}
-
-	//check the user password with dbPassword
-
-	err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password))
+func (u *UserUseCase) SignUp(ctx context.Context, user domain.User) (response.UserSignUp, error) {
+	DBUser, err := u.userRepository.FindUser(ctx, user)
 	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			return user, map[string]string{"Error": "Entered Password is wrong"}
+		return response.UserSignUp{}, err
+	}
+	if DBUser.ID == 0 {
+		hashedPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+		if err != nil {
+			fmt.Println("Hashing failed")
+			return response.UserSignUp{}, err
 		}
-		// Handle other potential errors more specifically if needed
-		return user, map[string]string{"Error": "Error comparing passwords"}
+		user.Password = string(hashedPass)
+		usersignup, err := u.userRepository.SaveUser(ctx, user)
+		if err != nil {
+			return response.UserSignUp{}, err
+		}
+		return usersignup, nil
+	} else {
+		return response.UserSignUp{}, fmt.Errorf("%v user already exists", DBUser.UserName)
 	}
 
-	// everything is ok then return dbUser
-	return dbUser, nil
 }
 
-func (c *userUseCase) Signup(ctx context.Context, user domain.User) (domain.User, error) {
-
-	// validate user values
-	fmt.Println(user)
-	if err := validator.New().Struct(user); err != nil {
-
+func (u *UserUseCase) Login(c context.Context, user domain.User) (domain.User, error) {
+	// Find user in db
+	DBUser, err := u.userRepository.FindUser(c, user)
+	if err != nil {
 		return user, err
+	} else if DBUser.ID == 0 {
+		return user, errors.New("User not exist")
+	}
+	//Check if the user blocked by admin
+	if DBUser.BlockStatus {
+		return user, errors.New("User blocked by admin")
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
-	if err != nil {
-		return domain.User{}, err
+	if _, err := verify.TwilioSendOTP("+91" + DBUser.Phone); err != nil {
+		return user, fmt.Errorf("Failed to send otp %v",
+			err)
+	}
+	// check password with hashed pass
+	if bcrypt.CompareHashAndPassword([]byte(DBUser.Password), []byte(user.Password)) != nil {
+		return user, errors.New("Password incorrect")
 	}
 
-	user.Password = string(hash)
-	user.Status = "PENDING"
-	user, dbErr := c.userRepo.SaveUser(ctx, user)
-
-	return user, dbErr
-}
-
-func (c *userUseCase) VerifyOTP(phone string) error {
-	err := c.userRepo.UpdateSignupstatus(phone)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return DBUser, nil
 
 }
 
-func (c *userUseCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {
-
-	products, err := c.userRepo.GetAllProducts(ctx)
-
+func (u *UserUseCase) OTPLogin(ctx context.Context, user domain.User) (domain.User, error) {
+	DBUser, err := u.userRepository.FindUser(ctx, user)
 	if err != nil {
-		return nil, map[string]string{"Error": "Can't get the products"}
+		return user, err
+	} else if DBUser.ID == 0 {
+		return user, errors.New("User not exist")
 	}
-
-	return products, err
-}
-func (c *userUseCase) GetProductItems(ctx context.Context, product domain.Product) ([]domain.Product, any) {
-
-	productsItem, err := c.userRepo.GetProductItems(ctx, product)
-
-	if err != nil {
-		return nil, map[string]string{"Error": "To get products item"}
-	}
-
-	return productsItem, nil
+	return DBUser, nil
 }

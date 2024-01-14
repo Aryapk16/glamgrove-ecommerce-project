@@ -3,12 +3,11 @@ package interfaces
 import (
 	"context"
 	"glamgrove/pkg/domain"
+	"glamgrove/pkg/utils/response"
 )
 
 type UserRepository interface {
-	FindUser(ctx context.Context, user domain.User) (domain.User, any)
-	SaveUser(ctx context.Context, user domain.User) (domain.User, error)
-	GetAllProducts(ctx context.Context) ([]domain.Product, any)
-	GetProductItems(ctx context.Context, product domain.Product) ([]domain.Product, any)
-	UpdateSignupstatus(phone string) error
+	SaveUser(c context.Context, user domain.User) (response.UserSignUp, error)
+	FindUser(c context.Context, user domain.User) (domain.User, error)
+	GetUserbyID(ctx context.Context, userId uint) (domain.User, error)
 }

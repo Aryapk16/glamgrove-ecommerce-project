@@ -7,21 +7,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(router *gin.Engine, user *handler.UserHandler, productHandler *handler.ProductHandler) {
+func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productHandler *handler.ProductHandler) {
 
-	router.POST("/login", user.Login)
-	router.POST("/signup", user.SignUp)
-	router.POST("/verifyOTP", user.VerifyOTP)
-
-	router.Use(middleware.AuthenticateUser)
+	signup := api.Group("/signup")
 	{
-		listproducts := router.Group("/product")
-		{
-			listproducts.GET("/getallproducts", productHandler.GetAllProducts)
-			listproducts.GET("/search", productHandler.SearchProduct)
-
-		}
+		signup.POST("/", userHandler.UserSignup)
 
 	}
 
+	login := api.Group("/login")
+	{
+		login.POST("/", userHandler.LoginSubmit)
+		login.POST("/otp-verify", userHandler.UserOTPVerify)
+	}
+
+	// Middleware
+	api.Use(middleware.AuthenticateUser)
+	{
+
+		products := api.Group("/products")
+		{
+			products.GET("/brands", productHandler.GetAllCategory)
+			products.GET("/", productHandler.ListProducts)
+		}
+	}
 }

@@ -2,92 +2,95 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"glamgrove/pkg/auth"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AuthenticateUser(c *gin.Context) {
-	RequireAuth(c, "User_Authorization")
+func AuthenticateUser(ctx *gin.Context) {
+	authHelper(ctx, "user-auth")
 }
 
-func AuthenticateSignup(c *gin.Context) {
-	RequireAuth(c, "Signup_Authorization")
+// user Admin
+func AuthenticateAdmin(ctx *gin.Context) {
+	authHelper(ctx, "admin-auth")
 }
 
-func RequireAuth(c *gin.Context, authname string) {
+// helper to validate cookie and expiry
+func authHelper(ctx *gin.Context, authname string) {
 
-	tokenString, err := c.Cookie(authname)
+	// get cookie for user or admin with name
+	tokenString, err := ctx.Cookie(authname)
 
-	if err != nil || tokenString == " " {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+	if err != nil || tokenString == "" {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"StatusCode": 401,
 			"msg":        "Error while fetching cookie",
-			"error":      err,
 		})
 		return
 	}
 
-	claims, err := auth.Validatetoken(tokenString)
+	// auth function validate the token and return claims with error
+	claims, err := auth.ValidateToken(tokenString)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"StatusCode": 401,
-			"msg":        "error while validating",
-		})
-		return
-	}
-	//expiry time
-	if float64(time.Now().Unix()) > claims["exp"].(float64) {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"StatusCode": 401,
-			"msg":        "Unauthorized User Please Login",
+			"msg":        "Unauthorized User Please Login token not valid",
 		})
 		return
 	}
 
-	c.Set("userId", claims["sub"])
+	// check the cliams expire time
+	if time.Now().Unix() > claims.ExpiresAt {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "User Need Re-Login time expired",
+		})
+		return
+	}
+	// claim the" userId and set it on context
+	ctx.Set("userId", fmt.Sprint(claims.Id))
 
 }
 
-// to fetch id from jwt
-func GetId(c *gin.Context, authname string) (float64, error) {
-	cookie, err := c.Request.Cookie(authname)
+//Get user id from JWT Token
+
+func GetId(tokenString string) (uint, error) {
+	// Validate the JWT token and retrieve the claims
+	claims, err := auth.ValidateToken(tokenString)
 	if err != nil {
-		return 0, errors.New("can't find cookie")
+		return 0, err
 	}
 
-	tokenString := cookie.Value
-	claims, err := auth.Validatetoken(tokenString)
+	// Extract and parse the user ID from the claims
+	userID, err := strconv.ParseUint(claims.Id, 10, 32)
 	if err != nil {
-		return 0, errors.New("can't validate cookie")
+		return 0, errors.New("failed to parse user ID from JWT claims")
 	}
 
-	id, ok := claims["sub"].(float64)
-	if !ok {
-		return 0, errors.New("can't find id")
-	}
-
-	return id, nil
+	return uint(userID), nil
 }
 
 // to fetch phone number from jwt
-func GetPhn(c *gin.Context, authname string) (string, error) {
-	cookie, err := c.Request.Cookie(authname)
-	if err != nil {
-		return " ", errors.New("can't find cookie")
-	}
+// func GetPhn(ctx *gin.Context authname string) (string, error) {
+// 	cookie, err := c.Request.Cookie(authname)
+// 	if err != nil {
+// 		return " ", errors.New("can't find cookie")
+// 	}
 
-	tokenString := cookie.Value
-	claims, err := auth.Validatetoken(tokenString)
-	if err != nil {
-		return " ", errors.New("can't validate cookie")
-	}
+// 	tokenString := cookie.Value
+// 	claims, err := auth.Validatetoken(tokenString)
+// 	if err != nil {
+// 		return " ", errors.New("can't validate cookie")
+// 	}
 
-	phn, ok := claims["sub"].(string)
-	if !ok {
-		return " ", errors.New("can't find phn")
-	}
-	return phn, nil
-}
+// 	phn, ok := claims["sub"].(string)
+// 	if !ok {
+// 		return " ", errors.New("can't find phn")
+// 	}
+// 	return phn, nil
+// }

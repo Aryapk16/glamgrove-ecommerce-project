@@ -5,23 +5,37 @@ package di
 
 import (
 	http "glamgrove/pkg/api"
-	handler "glamgrove/pkg/api/handler"
+	"glamgrove/pkg/api/handler"
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/db"
-	repo "glamgrove/pkg/repository"
-	UseCase "glamgrove/pkg/usecase"
+	"glamgrove/pkg/repository"
+	"glamgrove/pkg/usecase"
 
 	"github.com/google/wire"
 )
 
-func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
+func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 	wire.Build(
-		db.ConnectDatbase,
-		repo.NewUserRepository, repo.NewadminRepository, repo.NewProductRepository,
 
-		UseCase.NewUserUseCase, UseCase.NewadminUseCase, UseCase.NewProductUseCase,
-		handler.NewUserHandler,handler.NewAdminHandler,handler.NewProductHandler
+		//Repositories
+		repository.NewAdminRepository,
+		repository.NewUserRepository,
+		repository.NewProductRepository,
+
+		db.ConnectDatabase,
+
+		//Usecase
+		usecase.NewAdminService,
+		usecase.NewUserUseCase,
+		usecase.NewProductUseCase,
+
+		//Handler
+		handler.NewAdminHandler,
+		handler.NewUserHandler,
+		handler.NewProductHandler,
+
 		http.NewServerHTTP,
 	)
+
 	return &http.ServerHTTP{}, nil
 }

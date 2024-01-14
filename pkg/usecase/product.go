@@ -3,84 +3,104 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"glamgrove/pkg/domain"
 	interfaces "glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
-	"glamgrove/pkg/utils"
+	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
 )
 
 type productUseCase struct {
-	productRepo interfaces.ProductRepository
+	ProductRepository interfaces.ProductRepository
 }
 
-func NewProductUseCase(repo interfaces.ProductRepository) service.ProductUseCase {
-	return &productUseCase{
-		productRepo: repo,
-	}
+func NewProductUseCase(ProdRepo interfaces.ProductRepository) service.ProductService {
+	return &productUseCase{ProductRepository: ProdRepo}
 }
 
-// product
-func (pu *productUseCase) AddProduct(c context.Context, product domain.Product) (domain.Product, error) {
+func (p *productUseCase) AddCategory(ctx context.Context, brand request.Category) error {
+	// check if req brand already exists in db
+	dbBrand, _ := p.ProductRepository.FindBrand(ctx, brand)
+	if dbBrand.ID == 0 {
+		return fmt.Errorf("brand already exist with %s name", brand.CategoryName)
+	}
+	if err := p.ProductRepository.AddCategory(ctx, brand); err != nil {
+		return err
+	}
+	return nil
+}
 
-	produ, err := pu.productRepo.FindProduct(c, product)
-	product.ProductID = produ.ProductID
-	if err == nil {
+// to get all brands
+func (p *productUseCase) GetAllBrands(ctx context.Context) ([]response.Brand, error) {
+	allBrands, err := p.ProductRepository.GetAllBrand(ctx)
+	if err != nil {
+		return []response.Brand{}, err
+	}
+	fmt.Println(allBrands)
 
-		return produ, errors.New("product already exist please update product")
+	return allBrands, nil
+
+}
+func (p *productUseCase) AddProduct(ctx context.Context, product domain.Product) error {
+	// Check the product already exists in databse
+	if dbProd, err := p.ProductRepository.FindProduct(ctx, product); err != nil {
+		return err
+	} else if dbProd.ID != 0 {
+		return fmt.Errorf("product already exist with %s product name", dbProd.Name)
+	}
+	return p.ProductRepository.SaveProduct(ctx, product)
+
+}
+
+func (p *productUseCase) GetProducts(ctx context.Context, page request.ReqPagination) (products []response.ResponseProduct, err error) {
+	return p.ProductRepository.GetAllProducts(ctx, page)
+}
+
+func (p *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {
+	// Check requested product is exist or not
+	existingProduct, err := p.ProductRepository.FindProductByID(ctx, product.ID)
+	if err != nil {
+		return err
+	} else if existingProduct.Name == "" {
+		return errors.New("invalid product_id")
 	}
 
-	pro, err := pu.productRepo.AddProduct(c, product)
+	// check the given product_name already exist or not
+	existingProduct, err = p.ProductRepository.FindProduct(ctx, domain.Product{Name: product.Name})
+	if err != nil {
+		return err
+	} else if existingProduct.ID != 0 && existingProduct.ID != product.ID {
+		return errors.New("can't update the product \nrequested product_name already existing in database")
+	}
+
+	return p.ProductRepository.UpdateProduct(ctx, product)
+}
+
+func (p *productUseCase) DeleteProduct(ctx context.Context, productID uint) (domain.Product, error) {
+
+	existingProduct, err := p.ProductRepository.DeleteProduct(ctx, productID)
 	if err != nil {
 		return domain.Product{}, err
 	}
-	return pro, nil
+	return existingProduct, nil
 }
 
-func (pu *productUseCase) FindAllProducts(c context.Context, pagination utils.Pagination) ([]response.ProductResponse, utils.Metadata, error) {
-	product, metadata, err := pu.productRepo.FindAllProducts(c, pagination)
+func (p *productUseCase) AddProductItem(ctx context.Context, productItem request.ProductItemReq) error {
+	if err := p.ProductRepository.AddProductItem(ctx, productItem); err != nil {
+		return fmt.Errorf("failed to add product item: %v", err)
+	}
+	return nil
+}
+
+func (p *productUseCase) GetProductItem(ctx context.Context, productId uint) (ProductItems []response.ProductItemResp, count int, err error) {
+
+	productItems, err := p.ProductRepository.GetProductItems(ctx, productId)
 	if err != nil {
-		return []response.ProductResponse{}, utils.Metadata{}, err
+		return productItems, count, err
 	}
-	return product, metadata, nil
-}
 
-func (pu *productUseCase) SearchByCode(c context.Context, code string) (response.ProductResponse, error) {
-	product, err := pu.productRepo.SearchByCode(c, code)
-	if err != nil {
-		return response.ProductResponse{}, errors.New("Invalid product,product details not available")
-	}
-	return product, nil
-}
+	count = len(productItems)
 
-func (pu *productUseCase) GetProductByID(c context.Context, ProductId int) (domain.Product, error) {
-	product, err := pu.productRepo.GetProductByID(c, ProductId)
-
-	if err != nil {
-		return domain.Product{}, err
-	}
-	return product, nil
-}
-
-//category
-
-func (pu *productUseCase) AddCategory(c context.Context, category domain.Category) (domain.Category, error) {
-
-	_, err := pu.productRepo.FindCategory(c, category)
-
-	if err == nil {
-		return domain.Category{}, errors.New("category already exists")
-	}
-	pu.productRepo.AddCategory(c, category)
-
-	return category, nil
-}
-
-func (pu *productUseCase) DisplayAllCategory(c context.Context, pagination utils.Pagination) ([]domain.Category, utils.Metadata, error) {
-
-	categories, metadata, err := pu.productRepo.FindAllCategory(c, pagination)
-	if err != nil {
-		return []domain.Category{}, utils.Metadata{}, errors.New("error while finding all categories")
-	}
-	return categories, metadata, nil
+	return productItems, count, nil
 }

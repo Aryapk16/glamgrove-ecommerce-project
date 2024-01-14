@@ -6,66 +6,76 @@ import (
 	"glamgrove/pkg/config"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateJWT(id int) (map[string]string, error) {
+func JwtCookieSetup(c *gin.Context, name string, userId uint) bool {
+	//time = 10 mins
+	cookieTime := time.Now().Add(10 * time.Hour).Unix()
 
-	// Create a new token object, specifying signing method and the claims
-	// you would like it to contain.
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": id,
-		"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+
+		Id:        fmt.Sprint(userId),
+		ExpiresAt: cookieTime,
 	})
 
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(config.GetJWTConfig()))
+	// Generate signed JWT token using env var of secret key
+	if tokenString, err := token.SignedString([]byte(config.GetJWTConfig())); err == nil {
 
-	if err != nil {
-		return nil, errors.New("JWT token generating is failed")
+		// Set cookie with signed string if no error time = 10 hours
+		c.SetCookie(name, tokenString, 10*3600, "", "", false, true)
+
+		fmt.Println("JWT sign & set Cookie successful")
+		return true
 	}
-	return map[string]string{"accessToken": tokenString}, nil
+	fmt.Println("Failed JWT setup")
+	return false
+
 }
 
-func Validatetoken(tokenString string) (jwt.MapClaims, error) {
+func ValidateToken(tokenString string) (jwt.StandardClaims, error) {
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{},
+		func(token *jwt.Token) (interface{}, error) {
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(config.GetJWTConfig()), nil
-	})
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+
+			return []byte(config.GetJWTConfig()), nil
+		},
+	)
 	if err != nil || !token.Valid {
-		return jwt.MapClaims{}, errors.New("not valid token")
+		fmt.Println("not valid token")
+		return jwt.StandardClaims{}, errors.New("not valid token")
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
+
+	// then parse the token to claims
+	claims, ok := token.Claims.(*jwt.StandardClaims)
 	if !ok {
-
-		return jwt.MapClaims{}, errors.New("can't parse claims")
-
+		fmt.Println("Can't parse the claims")
+		return jwt.StandardClaims{}, errors.New("Can't parse the claims")
 	}
 
-	return claims, nil
+	return *claims, nil
 }
 
 // sub as phone number
-func GenerateJWTPhn(phn string) (map[string]string, error) {
+// func GenerateJWTPhn(phn string) (map[string]string, error) {
 
-	// Create a new token object, specifying signing method and the claims
-	// you would like it to contain.
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": phn,
-		"exp": time.Now().Add(time.Minute * 5).Unix(),
-	})
+// 	// Create a new token object, specifying signing method and the claims
+// 	// you would like it to contain.
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+// 		"sub": phn,
+// 		"exp": time.Now().Add(time.Minute * 5).Unix(),
+// 	})
 
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString([]byte(config.GetJWTConfig()))
+// 	// Sign and get the complete encoded token as a string using the secret
+// 	tokenString, err := token.SignedString([]byte(config.GetJWTConfig()))
 
-	if err != nil {
-		return nil, errors.New("JWT token generating is failed")
-	}
-	return map[string]string{"accessToken": tokenString}, nil
-}
+// 	if err != nil {
+// 		return nil, errors.New("JWT token generating is failed")
+// 	}
+// 	return map[string]string{"accessToken": tokenString}, nil
+// }

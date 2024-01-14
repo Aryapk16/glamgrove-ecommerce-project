@@ -3,22 +3,22 @@ package main
 import (
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/di"
-	"glamgrove/pkg/verification"
 	"log"
 )
 
 func main() {
-	cfg, err := config.LoadConfig()
-
-	verification.InitTwilio(cfg)
-	if err != nil {
-		log.Fatal("Error to load the config: ", err)
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("error loading the env file")
+	// }
+	config, Err := config.LoadConfig()
+	if Err != nil {
+		log.Fatal("cannot load config : ", Err)
 	}
-	server, err := di.InitializeApi(cfg)
-	if err != nil {
-		log.Fatal("Failed to initialize the api: ", err)
-	}
-	if server.Start(); err != nil {
-		log.Fatal("failed to start server: ", err)
+	server, diErr := di.InitializeApi(config)
+	if diErr != nil {
+		log.Fatal("cannot start server: ", diErr)
+	} else {
+		server.Start()
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,15 +13,15 @@ import (
 // func to connect data base using config(database config) and return address of a new instnce of gorm DB
 func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
-	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", cfg.DBHost, cfg.DBUser, cfg.DBName, cfg.DBPort, cfg.DBPassword)
+	psqlInfo := fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", cfg.DBHost, cfg.DBUser, cfg.DBName, cfg.DBPort, cfg.DBPassword)
 
-	fmt.Println("Connection string", dsn)
-
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
-
-	fmt.Println("Error is", err)
+	if err != nil {
+		log.Fatal("Failed to connect with database")
+		return nil, err
+	}
 
 	// migrate the database tables
 	db.AutoMigrate(
@@ -32,10 +33,16 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
 		//product
 		domain.Product{},
-		
+
+		domain.ProductItem{},
 
 		domain.Category{},
 	)
 
-	return db, err
+	if err != nil {
+		log.Fatal("DB Migration failed")
+		return nil, nil
+	}
+	fmt.Println("DB migration success")
+	return db, nil
 }

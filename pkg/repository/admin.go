@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/repository/interfaces"
-	"glamgrove/pkg/utils"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
 
@@ -14,76 +13,46 @@ import (
 )
 
 type adminDatabase struct {
-	DB *gorm.DB
+	DB           *gorm.DB
+	userDatabase interfaces.UserRepository
 }
 
-func NewadminRepository(DB *gorm.DB) interfaces.AdminRepository {
-	return &adminDatabase{DB}
-}
-func (ad *adminDatabase) FindAdmin(c context.Context, Username string) (domain.Admin, error) {
-	var admin domain.Admin
-	query := `select * from admins where user_name=?`
-	err := ad.DB.Raw(query, Username).Scan(&admin).Error
-	if err != nil {
-		return domain.Admin{}, errors.New("admin not found")
-	}
-
-	return admin, nil
+func NewAdminRepository(db *gorm.DB, userRepo interfaces.UserRepository) interfaces.AdminRepository {
+	return &adminDatabase{DB: db,
+		userDatabase: userRepo}
 }
 
-// for adding admin to database
-func (ad *adminDatabase) AddAdmin(c context.Context, admin domain.Admin) (domain.Admin, error) {
-	err := ad.DB.Create(&admin).Error
-	if err != nil {
-		return domain.Admin{}, errors.New("error while adding admin details to database")
-	}
+//	func (a *adminDatabase) GetAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
+//		query := `SELECT * FROM admins WHERE email =? OR user_name =?`
+//		if a.DB.Raw(query, admin.Email, admin.UserName).Scan(&admin).Error != nil {
+//			return admin, errors.New("Failed to find admin")
+//		}
+//		return admin, nil
+//	}
+func (a *adminDatabase) GetAllUser(ctx context.Context, page request.ReqPagination) (users []response.UserResp, err error) {
+	limit := page.Count
+	offset := (page.PageNumber - 1) * limit
 
-	return admin, nil
+	query := `SELECT * FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	err = a.DB.Raw(query, limit, offset).Scan(&users).Error
+
+	return users, err
 }
-func (ad *adminDatabase) FindAllUsers(c context.Context, pagination utils.Pagination) ([]response.AllUsers, utils.Metadata, error) {
-	var users []response.AllUsers
-	var totalrecords int64
 
-	db := ad.DB.Model(&domain.User{})
-
-	//count all records
-	if err := db.Count(&totalrecords).Error; err != nil {
-		return []response.AllUsers{}, utils.Metadata{}, err
-	}
-
-	// Apply pagination
-	//db = db.Limit(pagination.Limit()).Offset(pagination.Offset())
-
-	err := db.Raw("select user_id as id,username,name,phone,email from users LIMIT $1 OFFSET $2", pagination.Limit(), pagination.Offset()).Scan(&users).Error
-	if err != nil {
-		return []response.AllUsers{}, utils.Metadata{}, errors.New("failed to find all users")
-	}
-	// Compute metadata
-	metadata := utils.ComputeMetadata(&totalrecords, &pagination.Page, &pagination.PageSize)
-
-	return users, metadata, nil
-
-}
-func (ad *adminDatabase) FindByUsername(c context.Context, Username string) (domain.Admin, error) {
-	var admin domain.Admin
-
-	err := ad.DB.Raw("select *from admin_details where username=?", Username).Scan(&admin).Error
-	if err != nil {
-		return domain.Admin{}, errors.New("failed find user details")
-	}
-	return admin, nil
-}
-func (ad *adminDatabase) BlockUser(c context.Context, status request.BlockStatus) error {
-	fmt.Println("repohhhhh.........")
+func (a *adminDatabase) BlockUnBlockUser(ctx context.Context, userID uint) error {
+	// Check user if valid or not
 	var user domain.User
-	ad.DB.Raw("select *from users where user_id=?", status.UserID).Scan(&user)
-	if user.ID == 0 {
-		return errors.New("user doesn't exist")
+	query := `SELECT * FROM users WHERE id=?`
+	a.DB.Raw(query, userID).Scan(&user)
+	if user.Email == "" {
+		// check user email with user ID
+		return errors.New("Invalid user id user doesn't exist")
 	}
-	query := `update users set block_status=? where user_id=?`
-	err := ad.DB.Raw(query, status.BlockStatus, status.UserID).Scan(&user).Error
-	if err != nil {
-		return errors.New("failed to update block status")
+
+	query = `UPDATE users SET block_status = $1 WHERE id = $2`
+	if a.DB.Exec(query, !user.BlockStatus, userID).Error != nil {
+		return fmt.Errorf("Failed to update user block_status to %v", !user.BlockStatus)
 	}
 	return nil
 }
+

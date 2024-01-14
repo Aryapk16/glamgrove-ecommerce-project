@@ -3,60 +3,67 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
+	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
 	interfaces "glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
-	"glamgrove/pkg/utils"
 
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+
+	"github.com/jinzhu/copier"
 )
 
-type AdminUsecase struct {
-	adminRepo interfaces.AdminRepository
+type adminService struct {
+	adminRepository interfaces.AdminRepository
 }
 
-func NewadminUseCase(repo interfaces.AdminRepository) service.AdminUseCase {
-	return &AdminUsecase{adminRepo: repo}
+func NewAdminService(repo interfaces.AdminRepository) service.AdminService {
+	return &adminService{adminRepository: repo}
 }
 
-func (ad *AdminUsecase) AdminLogin(ctx context.Context, admin request.AdminLoginRequest) (domain.Admin, error) {
-	dbAdmin, _ := ad.adminRepo.FindAdmin(ctx, admin.Username)
-
-	// check password matching
-
+func (a *adminService) Login(c context.Context, admin domain.Admin) (domain.Admin, error) {
+	// Check admin exist in db
+	// dbAdmin, err := a.adminRepository.GetAdmin(c, admin)
+	// if err != nil {
+	// 	return admin, err
+	// }
+	username, password := config.GetAdminDetails()
+	dbAdmin := domain.Admin{
+		UserName: username,
+		Password: password,
+	}
+	if dbAdmin.UserName != admin.UserName {
+		return domain.Admin{}, errors.New("invalid username")
+	}
 	if dbAdmin.Password != admin.Password {
-		return domain.Admin{}, errors.New("password is not correct")
+		return domain.Admin{}, errors.New("invalid password")
+	}
+	// compare password with hash password
+	// if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
+	// 	return admin, errors.New("Wrong password")
+	// }
+	return dbAdmin, nil
+
+}
+
+// List all users in admin side
+func (a *adminService) GetAllUser(c context.Context, page request.ReqPagination) (users []response.UserResp, err error) {
+	users, err = a.adminRepository.GetAllUser(c, page)
+
+	if err != nil {
+		return nil, err
 	}
 
-	return dbAdmin, nil
+	// if no error then copy users details to an array response struct
+	var response []response.UserResp
+	copier.Copy(&response, &users)
+
+	return response, nil
 }
-func (ad *AdminUsecase) FindAllUsers(ctx context.Context, pagination utils.Pagination) ([]response.AllUsers, utils.Metadata, error) {
-	users, metadata, err := ad.adminRepo.FindAllUsers(ctx, pagination)
-	if err != nil {
-		return []response.AllUsers{}, utils.Metadata{}, errors.New("error while finding all users")
-	}
-	return users, metadata, nil
-}
-func (ad *AdminUsecase) BlockUser(ctx context.Context, id int) error {
-	fmt.Println("usecase.........")
-	var status request.BlockStatus
-	status.UserID = uint(id)
-	status.BlockStatus = true
-	err := ad.adminRepo.BlockUser(ctx, status)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-func (ad *AdminUsecase) UnBlockUser(ctx context.Context, id int) error {
-	var status request.BlockStatus
-	status.UserID = uint(id)
-	status.BlockStatus = false
-	err := ad.adminRepo.BlockUser(ctx, status)
-	if err != nil {
-		return err
-	}
-	return nil
+
+// to block or unblock a user
+func (a *adminService) BlockUnBlockUser(c context.Context, userID uint) error {
+
+	return a.adminRepository.BlockUnBlockUser(c, userID)
 }
