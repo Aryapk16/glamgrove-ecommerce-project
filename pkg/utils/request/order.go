@@ -1,9 +1,9 @@
 package request
 
 type UpdateOrder struct {
-	Order_Id        uint   ` json:"order_id"`
-	PaymentMethodID uint   `json:"paymentmethod_id"  gorm:"not null" `
-	Address_Id      uint   `json:"address_id" `
+	Order_Id        uint ` json:"order_id"`
+	PaymentMethodID uint `json:"paymentmethod_id"  gorm:"not null" `
+	Address_Id      uint `json:"address_id" `
 	Payment_Status  string `json:"payment_status"`
 	DeliveryStatus  string `json:"delivery_status"`
 }

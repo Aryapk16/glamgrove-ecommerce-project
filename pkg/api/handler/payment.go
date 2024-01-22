@@ -28,6 +28,7 @@ func (p *PaymentHandler) AddpaymentMethod(c *gin.Context) {
 		c.JSON(400, response)
 		return
 	}
+
 	paymentresp, err1 := p.PaymentService.AddPaymentMethod(c, payment)
 	if err1 != nil {
 		response := response.ErrorResponse(400, "Can't add payment method", err1.Error(), paymentresp)
@@ -69,11 +70,13 @@ func (p *PaymentHandler) GetPaymentMethods(ctx *gin.Context) {
 
 func (p *PaymentHandler) DeleteMethod(c *gin.Context) {
 	methodID, err := strconv.Atoi(c.Query("methodID"))
+
 	if err != nil {
 		response := response.ErrorResponse(400, "Please add id as params", err.Error(), methodID)
 		c.JSON(400, response)
 		return
 	}
+
 	err1 := p.PaymentService.DeleteMethod(c, uint(methodID))
 	if err1 != nil {
 		response := response.ErrorResponse(400, "can't delete payment method", err.Error(), "")

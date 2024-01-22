@@ -96,11 +96,13 @@ func (o *OrderHandler) GetAllOrders(c *gin.Context) {
 	page.PageNumber = page_number
 	page.Count = count
 	orderList, err := o.OrderService.GetAllOrders(c, page)
+	fmt.Println(orderList)
 	if err != nil {
 		response := response.ErrorResponse(500, "Something went wrong!", err.Error(), nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
+
 	response := response.SuccessResponse(200, "Get Orders successfully", orderList)
 	c.JSON(http.StatusOK, response)
 }
@@ -153,8 +155,8 @@ func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 	var placeorder request.PlaceOrderRequest
 	var order domain.Order
 	order_id, _ := strconv.Atoi(c.Query("order_id"))
-	coupon_id, _ := strconv.Atoi(c.Query("coupon_id"))
-	placeorder.CouponId = coupon_id
+	//coupon_id, _ := strconv.Atoi(c.Query("coupon_id"))
+	//placeorder.CouponId = coupon_id
 	placeorder.OrderId = order_id
 	order.Order_Id = uint(order_id)
 	order.OrderDate = time.Now()

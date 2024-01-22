@@ -27,5 +27,5 @@ type OrderRepository interface {
 	ReturnRequest(c context.Context, returnOrder domain.OrderReturn) (response.ReturnResponse, error)
 	VerifyOrderID(c context.Context, id uint, orderid uint) error
 
-	GetAllPendingReturnOrder(c context.Context, page request.ReqPagination) (ReturnRequests []response.ReturnRequests, err error)
+	GetAllPendingReturnOrder(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error)
 }

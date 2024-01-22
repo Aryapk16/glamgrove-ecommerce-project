@@ -34,7 +34,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 		}
 		order := api.Group("/order")
 		{
-			order.GET("/listOrder", orderHandler.ListAllOrders)
+			order.GET("/listOrder", orderHandler.GetAllOrders)
 		}
 
 		product := api.Group("/products")

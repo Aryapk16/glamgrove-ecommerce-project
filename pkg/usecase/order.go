@@ -138,10 +138,13 @@ func (o *OrderUseCase) VerifyOrderID(c context.Context, id uint, orderid uint) e
 	return nil
 }
 
-func (o *OrderUseCase) GetAllPendingReturnRequest(c context.Context, page request.ReqPagination) (ReturnRequests []response.ReturnRequests, err error) {
-	ReturnRequests, err = o.OrderRepository.GetAllPendingReturnOrder(c, page)
+func (o *OrderUseCase) GetAllPendingReturnRequest(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error) {
+
+	returnRequests, err := o.OrderRepository.GetAllPendingReturnOrder(c, page)
 	if err != nil {
-		return ReturnRequests, err
+		return returnRequests, err
 	}
-	return ReturnRequests, nil
+
+	return returnRequests, nil
+
 }

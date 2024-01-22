@@ -75,6 +75,8 @@ func (o *OrderDatabase) UpdateOrderDetails(c context.Context, uporder request.Up
 
 // List all orders User side
 func (o *OrderDatabase) ListAllOrders(c context.Context, page request.ReqPagination, userId uint) (orders []response.OrderResponse, err error) {
+
+	fmt.Println("id", userId)
 	limit := page.Count
 	offset := (page.PageNumber - 1) * limit
 	db := o.DB.Model(&domain.Order{})
@@ -83,6 +85,7 @@ func (o *OrderDatabase) ListAllOrders(c context.Context, page request.ReqPaginat
 	if db.Raw(query, userId, limit, offset).Scan(&orders).Error != nil {
 		return orders, errors.New("failed to get orders from database")
 	}
+	fmt.Println(orders)
 	return orders, nil
 }
 
@@ -95,6 +98,7 @@ func (o *OrderDatabase) GetAllOrders(c context.Context, page request.ReqPaginati
 	if db.Raw(query, limit, offset).Scan(&orders).Error != nil {
 		return orders, errors.New("failed to get orders from database")
 	}
+	fmt.Println("iididid", orders)
 	return orders, nil
 }
 
@@ -209,38 +213,46 @@ func (o *OrderDatabase) VerifyOrderID(c context.Context, id uint, orderid uint) 
 	return nil
 }
 
-func (o *OrderDatabase) GetAllPendingReturnOrder(c context.Context, page request.ReqPagination) (ReturnRequests []response.ReturnRequests, err error) {
+func (o *OrderDatabase) GetAllPendingReturnOrder(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error) {
 	limit := page.Count
 	offset := (page.PageNumber - 1) * limit
-	query := `SELECT 
-    r.id AS return_id,
-    o.user_id,
-    o.order_id,
-    r.request_date,
-    o.order_date AS requested_at,
-    pm.payment_method,
-    ps.status AS payment_status,
-    r.return_reason AS reason,
-    o.total_amount AS order_total,
-    r.is_approved
-FROM 
-    order_returns r
-LEFT JOIN 
-    orders o ON o.id = r.order_id
-LEFT JOIN 
-    payment_methods pm ON pm.id = o.payment_method_id
-LEFT JOIN 
-    payment_details pd ON pd.order_id = o.id
-LEFT JOIN 
-    payment_statuses ps ON ps.id = pd.payment_status_id
-WHERE 
-    r.is_approved = false
-ORDER BY 
-    r.request_date ASC
- LIMIT $1 OFFSET $2`
-	err = o.DB.Raw(query, limit, offset).Scan(&ReturnRequests).Error
+	query := `
+    SELECT 
+        r.id AS return_id,
+        o.user_id,
+        o.order_id,
+        r.request_date,
+        o.order_date AS requested_at,
+        pm.payment_method,
+        ps.status AS payment_status,
+        r.return_reason AS reason,
+        o.total_amount AS order_total,
+        r.is_approved
+    FROM 
+        order_returns r
+    LEFT JOIN 
+        orders o ON o.id = r.order_id
+    LEFT JOIN 
+        payment_methods pm ON pm.id = o.payment_method_id
+    LEFT JOIN 
+        payment_details pd ON pd.order_id = o.id
+    LEFT JOIN 
+        payment_statuses ps ON ps.id = pd.payment_status_id
+    WHERE 
+        r.is_approved = false
+    ORDER BY 
+        r.request_date ASC
+    LIMIT $1 OFFSET $2
+`
+
+	// Now the ORDER BY and LIMIT are placed correctly in the query.
+
+	var returnRequests []response.ReturnRequests
+	err := o.DB.Raw(query, limit, offset).Scan(&returnRequests).Error
 	if err != nil {
-		return ReturnRequests, err
+		fmt.Println("her")
+		return returnRequests, err
 	}
-	return ReturnRequests, nil
+
+	return returnRequests, nil
 }

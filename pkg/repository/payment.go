@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/repository/interfaces"
 	"glamgrove/pkg/utils/request"
@@ -30,18 +31,26 @@ func (pd *PaymentDatabase) AddPaymentMethod(c context.Context, payment domain.Pa
 // Find payment method
 func (pd *PaymentDatabase) FindPaymentMethod(c context.Context, payment domain.PaymentMethod) error {
 	var payment_methods domain.PaymentMethod
-	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE payment_method=?", payment.PaymentMethod).First(&payment_methods).Error
+
+	fmt.Println(payment)
+	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE payment_method=$1", payment.PaymentMethod).Scan(&payment_methods).Error
 	if err != nil {
 
 		return errors.New("Failed to find payment method")
 	}
-	return nil
+
+	fmt.Println(payment_methods.ID)
+
+	if payment_methods.ID > 0 {
+		return nil
+	}
+	return errors.New("Payment not found")
 }
 
 // Find payment method by ID
 func (pd *PaymentDatabase) FindPaymentMethodId(c context.Context, method_id uint) (uint, error) {
 	var payment_methods domain.PaymentMethod
-	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE id=?", method_id).First(&payment_methods).Error
+	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE id=$1", method_id).First(&payment_methods).Error
 	if err != nil {
 
 		return 0, errors.New("Failed to find payment method")

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"glamgrove/pkg/auth"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/usecase/interfaces"
@@ -18,9 +19,10 @@ type AdminHandler struct {
 	orderService interfaces.OrderService
 }
 
-func NewAdminHandler(adminService interfaces.AdminService) *AdminHandler {
+func NewAdminHandler(adminService interfaces.AdminService, orderservice interfaces.OrderService) *AdminHandler {
 	return &AdminHandler{
 		adminUseCase: adminService,
+		orderService: orderservice,
 	}
 }
 func (a *AdminHandler) AdminLogin(c *gin.Context) {
@@ -125,13 +127,16 @@ func (a *AdminHandler) GetAllReturnOrder(c *gin.Context) {
 		PageNumber: pageNumber,
 		Count:      count,
 	}
-	returnRequest, err := a.orderService.GetAllPendingReturnRequest(c, pagination)
+
+	fmt.Println(pagination)
+	returnRequests, err := a.orderService.GetAllPendingReturnRequest(c, pagination)
+
 	if err != nil {
-		response := response.ErrorResponse(400, "Something went wrong!", err1.Error(), nil)
+		response := response.ErrorResponse(400, "Something went wrong!", err.Error(), nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	response := response.SuccessResponse(http.StatusOK, "Return Request List", returnRequest, nil)
+	response := response.SuccessResponse(http.StatusOK, "Return Request List", returnRequests)
 	c.JSON(http.StatusOK, response)
 
 }
@@ -150,6 +155,7 @@ func (a *AdminHandler) ApproveReturnOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	response := response.SuccessResponse(http.StatusOK, "Return Order Approved", nil, nil)
+	fmt.Println(body)
+	response := response.SuccessResponse(http.StatusOK, "Return Order Approved", body)
 	c.JSON(http.StatusOK, response)
 }
