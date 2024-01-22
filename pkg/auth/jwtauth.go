@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"glamgrove/pkg/config"
+	"glamgrove/pkg/domain"
+	"glamgrove/pkg/utils/request"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -59,6 +61,43 @@ func ValidateToken(tokenString string) (jwt.StandardClaims, error) {
 	}
 
 	return *claims, nil
+}
+
+func GenerateTokenForOtp(val domain.User) (string, error) {
+	var expiryTime = time.Now().Add(10 * time.Minute).Unix()
+	claims := request.OtpCookieStruct{
+		FirstName: val.FirstName,
+		LastName:  val.LastName,
+		Email:     val.Email,
+		Phone:     val.Phone,
+		UserName:  val.UserName,
+		Password:  val.Password,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expiryTime,
+		},
+	}
+
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.GetJWTConfig()))
+
+	return token, err
+
+}
+
+func ValidateOtpTokens(signedtoken string) (request.OtpCookieStruct, error) {
+	token, err := jwt.ParseWithClaims(
+		signedtoken, &request.OtpCookieStruct{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(config.GetJWTConfig()), nil
+		})
+
+	if err != nil {
+
+		return request.OtpCookieStruct{}, err
+	}
+
+	claim, _ := token.Claims.(*request.OtpCookieStruct)
+
+	return *claim, nil
 }
 
 // sub as phone number

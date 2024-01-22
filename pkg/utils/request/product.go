@@ -3,8 +3,8 @@ package request
 type ProductReq struct {
 	Name        string `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
 	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=1000"`
-	CategoryID  uint   `json:"brand_id" binding:"required"`
-	Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
+	CategoryID  uint   `json:"category_id" binding:"required"`
+	//Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
 	//Image       string `json:"image" gorm:"not null" binding:"required"`
 }
 
@@ -36,8 +36,9 @@ type Category struct {
 }
 
 type ProductItemReq struct {
-	ProductID     uint `json:"product_id" binding:"required"`
-	ProductItemId uint `json:"product_item_id" binding:"required"`
+	ProductID uint `json:"product_id" binding:"required"`
+	//ProductBrand  string `json:"product_brand" binding:"required"`
+
 	QtyInStock    uint `json:"qty_in_stock" binding:"required"`
 	Price         uint `json:"price"`
 	DiscountPrice uint `json:"discount_price,omitempty"`

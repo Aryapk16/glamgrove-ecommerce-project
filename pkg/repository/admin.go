@@ -56,3 +56,34 @@ func (a *adminDatabase) BlockUnBlockUser(ctx context.Context, userID uint) error
 	return nil
 }
 
+func (a *adminDatabase) ApproveReturnOrder(c context.Context, data request.ApproveReturnRequest) error {
+	var order_return domain.OrderReturn
+	query := `UPDATE order_returns
+	SET is_approved = $1
+	WHERE order_id = $2 AND is_approved = false`
+
+	err := a.DB.Exec(query, data.IsApproved, data.OrderID).Error
+	if err != nil {
+		return err
+	}
+	query2 := `SELECT * FROM order_returns WHERE order_id=?`
+	err2 := a.DB.Raw(query2, data.OrderID).Scan(&order_return).Error
+	if err2 != nil {
+		return err
+	}
+	fmt.Println(order_return)
+	// if data.IsApproved {
+
+	// 	err := a.userDatabase.CreditUserWallet(c, domain.Wallet{
+	// 		UserID:  data.UserID,
+	// 		Balance: float64(order_return.RefundAmount),
+	// 		Remark:  data.Comment,
+	// 	})
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// } else {
+	// 	return errors.New("return request denied by admin")
+	// }
+	return nil
+}

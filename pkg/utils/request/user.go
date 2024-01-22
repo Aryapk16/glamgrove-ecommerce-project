@@ -1,62 +1,57 @@
- package request
+package request
 
-// // type SignUpReq struct {
-// // 	FirstName string `json:"first_name"  validate:"required,min=2,max=50"`
-// // 	LastName  string `json:"last_name"  validate:"required,min=1,max=50"`
-// // 	Age       uint   `json:"age" validate:"required,numeric"`
-// // 	Email     string `json:"email" validate:"required,email"`
-// // 	Phone     string `json:"phone" validate:"e164"`
-// // 	Password  string `json:"password" validate:"required"`
-// // }
-// // type LoginRequest struct {
-// // 	Email    string `json:"email" binding:"omitempty,email"`
-// // 	Password string `json:"Password" binding:"required,min=3,max=30"`
-// // }
-// // type OtpStruct struct {
-// // 	OTP string `json:"otp" validate:"required,min=6,max=6"`
-// // }
-// // type CodeRequest struct {
-// // 	Code string `json:"code"`
-// // }
-// type UserDetails struct {
-// 	Name            string `json:"name"`
-// 	Email           string `json:"email" validate:"email"`
-// 	Phone           string `json:"phone"`
-// 	Password        string `json:"password"`
-// 	ConfirmPassword string `json:"confirmpassword"`
-// }
-// type Address struct {
-// Id      uint   `json:"id" gorm:"unique;not null"`
-// 	UserID    uint   `json:"user_id"`
-// 	Name      string `json:"name" validate:"required"`
-// 	HouseName string `json:"house_name" validate:"required"`
-// 	Street    string `json:"street" validate:"required"`
-// 	City      string `json:"city" validate:"required"`
-// 	State     string `json:"state" validate:"required"`
-// 	Pin       string `json:"pin" validate:"required"`
-// }
+import (
+	"time"
 
-// type UserDetailsResponse struct {
-// 	Id    int    `json:"id"`
-// 	Name  string `json:"name"`
-// 	Email string `json:"email" validate:"email"`
-// 	Phone string `json:"phone"`
-// }
+	"github.com/golang-jwt/jwt"
+)
 
-// type TokenUsers struct {
-// 	Users UserDetailsResponse
-// 	Token string
-// }
+type Address struct {
+	ID        uint      `json:"-"`
+	UserID    uint      `json:"user_id"`
+	House     string    `json:"house"`
+	City      string    `json:"city"`
+	State     string    `json:"state"`
+	PinCode   string    `json:"pin_code"`
+	Country   string    `json:"country"`
+	IsDefault bool      `json:"is_default"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+}
+type AddressPatch struct {
+	ID        uint      `json:"address_id"`
+	UserID    uint      `json:"-"`
+	House     string    `json:"house"`
+	City      string    `json:"city"`
+	State     string    `json:"state"`
+	PinCode   string    `json:"pin_code"`
+	Country   string    `json:"country"`
+	IsDefault bool      `json:"is_default"`
+	UpdatedAt time.Time `json:"-"`
+}
+type AddToCartReq struct {
+	UserID         uint    `json:"user_id"`
+	ProductID      uint    `json:"product_id" binding:"required"`
+	Quantity       uint    `json:"quantity" binding:"required"`
+	Price          float64 `json:"-"`
+	Discount_price uint    `json:"-"`
+}
+type UpdateCartReq struct {
+	UserID    uint `json:"-"`
+	ProductID uint `json:"product_id" binding:"required"`
+	Quantity  uint `json:"quantity" binding:"required"`
+}
+type DeleteCartItem struct {
+	UserID    uint `json:"-"`
+	ProductID uint `json:"product_id" binding:"required"`
+}
 
-// type UserLogin struct {
-// 	Email    string `json:"email" validate:"email"`
-// 	Password string `json:"password"`
-// }
-// type UserSignInResponse struct {
-// 	Id       uint   `json:"id"`
-// 	UserID   uint   `json:"user_id"`
-// 	Name     string `json:"name"`
-// 	Email    string `json:"email" validate:"email"`
-// 	Phone    string `Json:"phone"`
-// 	Password string `json:"password"`
-// }
+type OtpCookieStruct struct {
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	UserName  string `json:"username"`
+	Password  string `json:"password"`
+	jwt.StandardClaims
+}

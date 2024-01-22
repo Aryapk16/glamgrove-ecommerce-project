@@ -40,12 +40,12 @@ func TwilioSendOTP(phoneNumber string) (string, error) {
 	params.SetTo(phoneNumber)
 	params.SetChannel("sms")
 
-	resp, err := client.VerifyV2.CreateVerification(SERVICESID, params)
+	_, err := client.VerifyV2.CreateVerification(SERVICESID, params)
 	if err != nil {
 		return "", err
 	}
 
-	return *resp.Sid, nil
+	return "Otp send succesfully", nil
 }
 
 func TwilioVerifyOTP(phoneNumber string, code string) error {

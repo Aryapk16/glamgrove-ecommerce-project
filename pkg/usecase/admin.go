@@ -15,11 +15,13 @@ import (
 )
 
 type adminService struct {
-	adminRepository interfaces.AdminRepository
+	adminRepository   interfaces.AdminRepository
+	PaymentRepository interfaces.PaymentRepository
 }
 
-func NewAdminService(repo interfaces.AdminRepository) service.AdminService {
-	return &adminService{adminRepository: repo}
+func NewAdminService(repo interfaces.AdminRepository, PaymentRepo interfaces.PaymentRepository) service.AdminService {
+	return &adminService{adminRepository: repo,
+		PaymentRepository: PaymentRepo}
 }
 
 func (a *adminService) Login(c context.Context, admin domain.Admin) (domain.Admin, error) {
@@ -66,4 +68,20 @@ func (a *adminService) GetAllUser(c context.Context, page request.ReqPagination)
 func (a *adminService) BlockUnBlockUser(c context.Context, userID uint) error {
 
 	return a.adminRepository.BlockUnBlockUser(c, userID)
+}
+func (o *adminService) ApproveReturnOrder(c context.Context, data request.ApproveReturnRequest) error {
+	// get payment data
+	// ID 2 is for status "Paid"
+	payment, err := o.PaymentRepository.GetPaymentDataByOrderId(c, data.OrderID)
+
+	if err != nil {
+		return err
+	}
+
+	data.OrderTotal = payment.OrderTotal
+	err = o.adminRepository.ApproveReturnOrder(c, data)
+	if err != nil {
+		return err
+	}
+	return nil
 }

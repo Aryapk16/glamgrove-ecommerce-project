@@ -17,23 +17,26 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
+func InitializeAPI(cfg config.Config) (*http.ServerHTTP, error) {
 	gormDB, err := db.ConnectDatabase(cfg)
 	if err != nil {
 		return nil, err
 	}
 	userRepository := repository.NewUserRepository(gormDB)
 	adminRepository := repository.NewAdminRepository(gormDB, userRepository)
-	productRepository := repository.NewProductRepository(gormDB)
-
-	userService := usecase.NewUserUseCase(userRepository)
-	adminService := usecase.NewAdminService(adminRepository)
-	productService := usecase.NewProductUseCase(productRepository)
-
-	userHandler := handler.NewUserHandler(userService)
+	paymentRepository := repository.NewPaymentRepository(gormDB)
+	adminService := usecase.NewAdminService(adminRepository, paymentRepository)
 	adminHandler := handler.NewAdminHandler(adminService)
+	userService := usecase.NewUserUseCase(userRepository)
+	userHandler := handler.NewUserHandler(userService)
+	productRepository := repository.NewProductRepository(gormDB)
+	productService := usecase.NewProductUseCase(productRepository)
 	productHandler := handler.NewProductHandler(productService)
-
-	serverHTTP := http.NewServerHTTP(adminHandler, userHandler, productHandler)
+	orderRepository := repository.NewOrderRepository(gormDB)
+	orderService := usecase.NewOrderUseCase(orderRepository)
+	orderHandler := handler.NewOrderHandler(orderService)
+	paymentService := usecase.NewPaymentUseCase(paymentRepository)
+	paymentHandler := handler.NewPaymentHandler(paymentService)
+	serverHTTP := http.NewServerHTTP(adminHandler, userHandler, productHandler, orderHandler, paymentHandler)
 	return serverHTTP, nil
 }

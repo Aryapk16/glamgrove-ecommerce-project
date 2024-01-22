@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler) {
+func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler) {
 	//login
 	login := api.Group("/login")
 	{
@@ -23,12 +23,18 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 			user.GET("/", adminHandler.ListUsers)
 			user.PATCH("/block", adminHandler.BlockUnBlockUser)
 			user.PATCH("/unblock", adminHandler.BlockUnBlockUser)
+			user.GET("/return-orders", adminHandler.GetAllReturnOrder)
+			user.PATCH("/return-orders/approval", adminHandler.ApproveReturnOrder)
 		}
 
 		brand := api.Group("/brands")
 		{
 			brand.GET("/get", productHandler.GetAllCategory)
 			brand.POST("/add", productHandler.AddCategory)
+		}
+		order := api.Group("/order")
+		{
+			order.GET("/listOrder", orderHandler.ListAllOrders)
 		}
 
 		product := api.Group("/products")
@@ -40,5 +46,13 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 			product.POST("/product-item", productHandler.AddProductItem)
 			product.GET("/product-item/:product_id", productHandler.GetProductItem)
 		}
+		paymentmethod := api.Group("/paymentmethod")
+		{
+			paymentmethod.POST("/add", paymentHandler.AddpaymentMethod)
+			paymentmethod.GET("/view", paymentHandler.GetPaymentMethods)
+			paymentmethod.PUT("/update", paymentHandler.UpdatePaymentMethod)
+			paymentmethod.DELETE("/delete", paymentHandler.DeleteMethod)
+		}
+
 	}
 }

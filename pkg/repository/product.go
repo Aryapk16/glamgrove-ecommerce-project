@@ -170,11 +170,11 @@ func (p *productDatabase) AddProductItem(ctx context.Context, productItem reques
 	}
 
 	// Save the product item to the database
-	query := `INSERT INTO product_items (id,product_id, qty_in_stock, price, discount_price, created_at) 
-	VALUES ($1, $2, $3, $4, $5,$6)
+	query := `INSERT INTO product_items (product_id, qty_in_stock, price, discount_price, created_at) 
+	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id`
 	createdAt := time.Now()
-	if err := p.DB.Raw(query, productItem.ProductItemId, productItem.ProductID, productItem.QtyInStock, productItem.Price,
+	if err := p.DB.Raw(query, productItem.ProductID, productItem.QtyInStock, productItem.Price,
 		productItem.DiscountPrice, createdAt).Scan(&product_item).Error; err != nil {
 
 		return fmt.Errorf("failed to add product item: %v", err)

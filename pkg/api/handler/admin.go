@@ -15,6 +15,7 @@ import (
 
 type AdminHandler struct {
 	adminUseCase interfaces.AdminService
+	orderService interfaces.OrderService
 }
 
 func NewAdminHandler(adminService interfaces.AdminService) *AdminHandler {
@@ -103,4 +104,52 @@ func (a *AdminHandler) BlockUnBlockUser(ctx *gin.Context) {
 	}
 	response := response.SuccessResponse(200, "Successfully changed user block_status", body.UserID)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (a *AdminHandler) GetAllReturnOrder(c *gin.Context) {
+
+	count, err1 := utils.StringToUint(c.Query("count"))
+	pageNumber, err2 := utils.StringToUint(c.Query("page_number"))
+
+	if err1 != nil {
+		response := response.ErrorResponse(400, "Missing or invalid inputs", err1.Error(), nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	if err2 != nil {
+		response := response.ErrorResponse(400, "Missing or invalid inputs", err1.Error(), nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := request.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+	returnRequest, err := a.orderService.GetAllPendingReturnRequest(c, pagination)
+	if err != nil {
+		response := response.ErrorResponse(400, "Something went wrong!", err1.Error(), nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := response.SuccessResponse(http.StatusOK, "Return Request List", returnRequest, nil)
+	c.JSON(http.StatusOK, response)
+
+}
+
+func (a *AdminHandler) ApproveReturnOrder(c *gin.Context) {
+	var body request.ApproveReturnRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response := response.ErrorResponse(400, "Invalid Request Body", err.Error(), nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	body.IsApproved = true
+	err := a.adminUseCase.ApproveReturnOrder(c, body)
+	if err != nil {
+		response := response.ErrorResponse(400, "Something went wrong!", err.Error(), nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := response.SuccessResponse(http.StatusOK, "Return Order Approved", nil, nil)
+	c.JSON(http.StatusOK, response)
 }
