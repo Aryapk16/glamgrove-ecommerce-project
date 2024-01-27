@@ -100,21 +100,21 @@ func ValidateOtpTokens(signedtoken string) (request.OtpCookieStruct, error) {
 	return *claim, nil
 }
 
-// sub as phone number
-// func GenerateJWTPhn(phn string) (map[string]string, error) {
+//sub as phone number
+func GenerateJWTPhn(phn string) (map[string]string, error) {
 
-// 	// Create a new token object, specifying signing method and the claims
-// 	// you would like it to contain.
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 		"sub": phn,
-// 		"exp": time.Now().Add(time.Minute * 5).Unix(),
-// 	})
+	// Create a new token object, specifying signing method and the claims
+	// you would like it to contain.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": phn,
+		"exp": time.Now().Add(time.Minute * 5).Unix(),
+	})
 
-// 	// Sign and get the complete encoded token as a string using the secret
-// 	tokenString, err := token.SignedString([]byte(config.GetJWTConfig()))
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := token.SignedString([]byte(config.GetJWTConfig()))
 
-// 	if err != nil {
-// 		return nil, errors.New("JWT token generating is failed")
-// 	}
-// 	return map[string]string{"accessToken": tokenString}, nil
-// }
+	if err != nil {
+		return nil, errors.New("JWT token generating is failed")
+	}
+	return map[string]string{"accessToken": tokenString}, nil
+}

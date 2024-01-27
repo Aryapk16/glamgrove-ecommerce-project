@@ -5,6 +5,7 @@ import (
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"mime/multipart"
 )
 
 type ProductService interface {
@@ -18,4 +19,5 @@ type ProductService interface {
 	DeleteProduct(ctx context.Context, productID uint) (domain.Product, error)
 	AddProductItem(ctx context.Context, productItem request.ProductItemReq) error
 	GetProductItem(ctx context.Context, productId uint) (ProductItems []response.ProductItemResp, count int, err error)
+	AddImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductImage, error)
 }

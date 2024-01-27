@@ -10,7 +10,7 @@ type UserSignUp struct {
 	UserName string `json:"user_name" copier:"must"`
 }
 type Profile struct {
-	ID             uint    `json:"id"`
+	//ID             uint    `json:"id"`
 	UserName       string  `json:"user_name" copier:"must"`
 	FirstName      string  `json:"first_name" copier:"must"`
 	LastName       string  `json:"last_name" copier:"must"`

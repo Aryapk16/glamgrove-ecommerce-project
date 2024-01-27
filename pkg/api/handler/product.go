@@ -8,6 +8,7 @@ import (
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
@@ -67,6 +68,39 @@ func (p *ProductHandler) AddProduct(c *gin.Context) {
 	response := response.SuccessResponse(http.StatusOK, "Product added successful", body)
 	c.JSON(http.StatusOK, response)
 }
+
+// Add image
+func (p *ProductHandler) AddImage(c *gin.Context) {
+	pid, err := strconv.Atoi(c.PostForm("product_id"))
+	if err != nil {
+		response := response.ErrorResponse(400, "Error while fetching product_id", err.Error(), pid)
+		c.JSON(400, response)
+		return
+	}
+   form,err:= c.MultipartForm()
+
+   if err!=nil{
+	response:=response.ErrorResponse(400,"error while fetching image file",err.Error(),form)
+   c.JSON(400,response)
+   return
+   }
+   files:=form.File["image"]
+   if len(files)==0{
+	c.JSON(http.StatusBadRequest,gin.H{"error":"No image file found"})
+	return
+   }
+   Images,err:=p.ProductService.AddImage(c,pid,files)
+   if err!=nil{
+	response:=response.ErrorResponse(400,"can't add images",err.Error(),Images)
+	c.JSON(400,response)
+	return
+   }
+   response:=response.SuccessResponse(200,"successfully added images",Images)
+   c.JSON(200,response)
+
+
+}
+
 func (p *ProductHandler) ListProducts(c *gin.Context) {
 	count, err1 := utils.StringToUint(c.Query("count"))
 	if err1 != nil {

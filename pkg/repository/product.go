@@ -65,6 +65,20 @@ func (p *productDatabase) SaveProduct(ctx context.Context, product domain.Produc
 	}
 	return nil
 }
+
+// Add Image
+func (pd *productDatabase) AddImage(c context.Context, pid int, filename string) (domain.ProductImage, error) {
+
+	// Store the image record in the database
+	image := domain.ProductImage{ProductId: uint(pid), Image: filename}
+	if err := pd.DB.Create(&image).Error; err != nil {
+
+		return domain.ProductImage{}, errors.New("failed to store image record")
+	}
+
+	return image, nil
+}
+
 func (p *productDatabase) GetProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
 	query := `SELECT * FROM products where id = ? product_name = ?`
 	if p.DB.Raw(query, product.ID, product.Name).Scan(&product).Error != nil {

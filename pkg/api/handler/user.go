@@ -377,6 +377,7 @@ func (u *UserHandler) UpdateCart(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfuly updated cart", body)
 	c.JSON(200, response)
 }
+
 func (u *UserHandler) DeleteCartItem(c *gin.Context) {
 	var body request.DeleteCartItem
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -398,5 +399,91 @@ func (u *UserHandler) DeleteCartItem(c *gin.Context) {
 	}
 	response := response.SuccessResponse(200, "Successfuly deleted the cart item", body)
 	c.JSON(200, response)
+
+}
+
+// forgot password
+func (u *UserHandler) SendOtpForgotPass(c *gin.Context) {
+	var phn request.Phn
+
+	if err := c.ShouldBindJSON(&phn); err != nil {
+		res := response.ErrorResponse(400, "error wwhile getting data from the user side", err.Error(), phn)
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+	phnNo := phn.Phone
+	err := u.userService.SendOtpForgotPass(c, phnNo)
+	if err != nil {
+		res := response.ErrorResponse(400, "error while sending otp", err.Error(), nil)
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	//generate tokenstring with jwt
+	tokenString, err := auth.GenerateJWTPhn(phnNo)
+	if err != nil {
+		response := response.ErrorResponse(400, "failed to send otp", err.Error(), "user didn't exist")
+		c.JSON(400, response)
+		return
+	}
+	//set cookie
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Phone_Authorization", tokenString["accessToken"], 3600*24*30, "/", " ", false, true)
+
+	response := response.SuccessResponse(200, "otp send successfully", nil)
+	c.JSON(http.StatusOK, response)
+}
+
+func (u *UserHandler) VerifyOTPForgotPass(c *gin.Context) {
+	var otp request.OTPVerify
+
+	if err := c.ShouldBindJSON(&otp); err != nil {
+
+		resp := response.ErrorResponse(400, "Invalid input", err.Error(), nil)
+		c.JSON(http.StatusBadRequest, resp)
+		return
+
+	}
+
+	value, err := c.Cookie("_forgot-cookie")
+	// c.SetCookie("_forgot-cookie", "", -1, "", "", false, true)
+
+	// if err != nil {
+	// 	resp := response.ErrorResponse(500, "unable to get details", err.Error(), nil)
+	// 	c.JSON(http.StatusInternalServerError, resp)
+	// 	return
+	// }
+
+	details, _ := auth.ValidateOtpTokens(value)
+
+	// if ver != nil {
+	// 	resp := response.ErrorResponse(500, "unable to find details", err.Error(), nil)
+	// 	c.JSON(http.StatusInternalServerError, resp)
+	// 	return
+	// }
+
+	t := verify.TwilioVerifyOTP("+91"+details.Phone, otp.OTP)
+
+	if t != nil {
+		resp := response.ErrorResponse(400, "Invalid otp", t.Error(), nil)
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	var signup domain.User
+	copier.Copy(&signup, &details)
+
+	fmt.Println(signup)
+	fmt.Println(details)
+
+	_, err = u.userService.SignUp(c, signup)
+
+	if err != nil {
+		resp := response.ErrorResponse(400, "Invalid", err.Error(), nil)
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp := response.SuccessResponse(201, "Successfully Account Created", nil)
+	c.JSON(201, resp)
 
 }

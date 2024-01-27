@@ -167,16 +167,7 @@ func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 		return
 	}
 
-	// Clear wallet history for the user
-	//userID := 123 // Replace with the actual user ID
-	// userId := utils.GetUserIdFromContext(c)
 
-	// err = o.OrderService.ClearWalletHistory(c, userId)
-	// if err != nil {
-	// 	response := response.ErrorResponse(500, "failed to clear wallet history", err.Error(), "")
-	// 	c.JSON(500, response)
-	// 	return
-	// }
 
 	if paymentResp.PaymentMethodId == "1" {
 		response := response.SuccessResponse(200, "Successfully confirmed order complete payment process on delivery", paymentResp)

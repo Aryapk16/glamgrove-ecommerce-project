@@ -24,11 +24,17 @@ type Product struct {
 // ProductItem struct
 type ProductItem struct {
 	gorm.Model
-	ID            uint   `json:"id" gorm:"primaryKey;not null;autoIncrement"`
-	ProductID     uint   `json:"product_id" gorm:"index;"`
-	QtyInStock    uint   `json:"qty_in_stock" gorm:"not null"`
-	StockStatus   bool   `json:"stock_status" gorm:"not null;default:true;type:boolean;"`
-	Price         uint   `json:"price" gorm:"not null"`
+	ID          uint `json:"id" gorm:"primaryKey;not null;autoIncrement"`
+	ProductID   uint `json:"product_id" gorm:"index;"`
+	QtyInStock  uint `json:"qty_in_stock" gorm:"not null"`
+	StockStatus bool `json:"stock_status" gorm:"not null;default:true;type:boolean;"`
+	Price       uint `json:"price" gorm:"not null"`
 	//SKU           string `json:"sku" gorm:"unique;not null"`
-	DiscountPrice uint   `json:"discount_price" gorm:"default:null"`
+	DiscountPrice uint `json:"discount_price" gorm:"default:null"`
+}
+
+type ProductImage struct {
+	ID        uint   `json:"id" gorm:"primaryKey"`
+	ProductId uint   `json:"product_id"`
+	Image     string `JSON:"Image" `
 }

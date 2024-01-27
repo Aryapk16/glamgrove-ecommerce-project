@@ -23,4 +23,7 @@ type UserRepository interface {
 	GetCartItemsbyUserId(ctx context.Context, page request.ReqPagination, userID uint) (CartItems []response.CartItemResp, err error)
 	UpdateCart(ctx context.Context, cartUpadates request.UpdateCartReq) error
 	RemoveCartItem(ctx context.Context, DelCartItem request.DeleteCartItem) error
+
+	//forgot password
+	FindUserByPhnNum(c context.Context, phn string,) error
 }

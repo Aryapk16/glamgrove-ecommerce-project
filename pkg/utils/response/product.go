@@ -3,7 +3,7 @@ package response
 import "time"
 
 type ResponseProduct struct {
-	ID            uint   `json:"id"`
+	//ID            uint   `json:"id"`
 	Name          string `json:"product_name"`
 	Description   string `json:"description" `
 	Category_name string `json:"category_name"`

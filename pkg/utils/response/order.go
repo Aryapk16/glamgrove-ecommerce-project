@@ -3,8 +3,8 @@ package response
 import "time"
 
 type OrderResponse struct {
-	Order_id       uint    `json:"order_id"`
-	UserName       uint    `json:"user_name"`
+	Order_id uint `json:"order_id"`
+	//UserName       uint    `json:"user_name"`
 	Total_Amount   float64 `json:"total_amount"  gorm:"not null" `
 	Order_Status   string  `json:"order_status"`
 	Payment_Status string  `json:"payment_status"   `

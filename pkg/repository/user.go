@@ -278,3 +278,14 @@ func (i *userDatabase) RemoveCartItem(ctx context.Context, DeleteCartItem reques
 	}
 	return nil
 }
+
+//forgot password
+
+func (u *userDatabase) FindUserByPhnNum(ctx context.Context, phn string) error {
+	var user domain.User
+	err := u.DB.Where("phone=?", phn).First(&user).Error
+	if err != nil {
+		return errors.New("failed to fetch user account")
+	}
+	return nil
+}

@@ -20,7 +20,7 @@ type Order struct {
 	OrderDate       time.Time `json:"order_date"`
 }
 type OrderReturn struct {
-	ID           uint      `gorm:"serial primaryKey;autoIncrement:true;unique"`
+	//ID          uint      `gorm:"serial primaryKey;autoIncrement:true;unique"`
 	OrderID      uint      `json:"order_id" gorm:"not null;unique"`
 	RequestDate  time.Time `json:"request_date" gorm:"not null"`
 	ReturnReason string    `json:"return_reason" gorm:"not null"`

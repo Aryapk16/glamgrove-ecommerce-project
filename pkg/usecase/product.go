@@ -9,6 +9,12 @@ import (
 	service "glamgrove/pkg/usecase/interfaces"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 type productUseCase struct {
@@ -51,6 +57,46 @@ func (p *productUseCase) AddProduct(ctx context.Context, product domain.Product)
 	}
 	return p.ProductRepository.SaveProduct(ctx, product)
 
+}
+
+func (p *productUseCase) AddImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductImage, error) {
+	var images []domain.ProductImage
+	for _, file := range files {
+		// Generate a unique filename for the image
+
+		ext := filepath.Ext(file.Filename)
+		filename := uuid.New().String() + ext
+
+		image, err := p.ProductRepository.AddImage(c, pid, filename)
+		if err != nil {
+			return []domain.ProductImage{}, err
+		}
+
+		src, err := file.Open()
+		if err != nil {
+			return []domain.ProductImage{}, err
+		}
+		defer src.Close()
+
+		// Create the destination file
+		dst, err := os.Create(filepath.Join("images", filename)) // Replace "path/to/save/images" with your desired directory
+		if err != nil {
+			return []domain.ProductImage{}, err
+		}
+		defer dst.Close()
+
+		// Copy the uploaded file's content to the destination file
+		_, err = io.Copy(dst, src)
+		if err != nil {
+			return []domain.ProductImage{}, err
+		}
+		// product, _ := pu.productRepo.GetProductByID(c, pid)
+		// image.Product = product
+
+		images = append(images, image)
+	}
+
+	return images, nil
 }
 
 func (p *productUseCase) GetProducts(ctx context.Context, page request.ReqPagination) (products []response.ResponseProduct, err error) {

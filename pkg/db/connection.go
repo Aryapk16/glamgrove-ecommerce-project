@@ -36,6 +36,7 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 		domain.Product{},
 		domain.ProductItem{},
 		domain.Category{},
+		domain.ProductImage{},
 
 		//cart
 		domain.Cart{},

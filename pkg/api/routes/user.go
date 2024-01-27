@@ -21,6 +21,12 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 		login.POST("/", userHandler.LoginSubmit)
 		//login.POST("/otp-verify", userHandler.UserOTPVerify)
 	}
+	
+	//forgotpassword
+	forgotpass := api.Group("/sendotp")
+	{
+		forgotpass.POST("/", userHandler.SendOtpForgotPass)
+	}
 
 	// Middleware
 	api.Use(middleware.AuthenticateUser)

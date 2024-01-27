@@ -23,4 +23,6 @@ type UserService interface {
 	RemoveCartItem(ctx context.Context, DelCartItem request.DeleteCartItem) error
 
 	Profile(ctx context.Context, userId uint) (profile response.Profile, err error)
+// forgot password
+	SendOtpForgotPass(ctx context.Context,phn string)error
 }

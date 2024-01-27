@@ -9,6 +9,7 @@ import (
 	service "glamgrove/pkg/usecase/interfaces"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"glamgrove/pkg/verify"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -140,7 +141,7 @@ func (u *UserUseCase) Profile(ctx context.Context, userId uint) (response.Profil
 	//fmt.Println(defaultAddress)
 
 	profile := response.Profile{
-		ID:             user.ID,
+		//ID:             user.ID,
 		UserName:       user.UserName,
 		FirstName:      user.FirstName,
 		LastName:       user.LastName,
@@ -176,6 +177,20 @@ func (u *UserUseCase) UpdateCart(ctx context.Context, cartUpadates request.Updat
 func (u *UserUseCase) RemoveCartItem(ctx context.Context, DelCartItem request.DeleteCartItem) error {
 	if err := u.userRepository.RemoveCartItem(ctx, DelCartItem); err != nil {
 		return err
+	}
+	return nil
+}
+
+//forgot password
+
+func (u *UserUseCase) SendOtpForgotPass(ctx context.Context, phn string) error {
+	err := u.userRepository.FindUserByPhnNum(ctx, phn)
+	if err != nil {
+		return err
+	}
+	// Generate OTP code
+	if _, err1 := verify.TwilioSendOTP("+91" + phn); err1 != nil {
+		return errors.New("can't send otp")
 	}
 	return nil
 }

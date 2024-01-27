@@ -75,22 +75,4 @@ func GetId(tokenString string) (uint, error) {
 	return uint(userID), nil
 }
 
-// to fetch phone number from jwt
-// func GetPhn(ctx *gin.Context authname string) (string, error) {
-// 	cookie, err := c.Request.Cookie(authname)
-// 	if err != nil {
-// 		return " ", errors.New("can't find cookie")
-// 	}
 
-// 	tokenString := cookie.Value
-// 	claims, err := auth.Validatetoken(tokenString)
-// 	if err != nil {
-// 		return " ", errors.New("can't validate cookie")
-// 	}
-
-// 	phn, ok := claims["sub"].(string)
-// 	if !ok {
-// 		return " ", errors.New("can't find phn")
-// 	}
-// 	return phn, nil
-// }

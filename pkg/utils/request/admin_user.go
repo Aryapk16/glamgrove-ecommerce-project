@@ -30,3 +30,7 @@ type Block struct {
 type UserID struct {
 	UserID uint `json:"user_id" binding:"required,numeric"`
 }
+
+type Phn struct {
+	Phone string `json:"phone"`
+}
