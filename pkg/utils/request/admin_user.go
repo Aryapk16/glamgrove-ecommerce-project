@@ -10,7 +10,7 @@ type SignupUserData struct {
 	Password  string `json:"password"  binding:"required"`
 }
 type LoginData struct {
-	UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
+	//UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
 	//Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
 	Email    string `json:"email" binding:"omitempty,email"`
 	Password string `json:"Password" binding:"required,min=3,max=30"`

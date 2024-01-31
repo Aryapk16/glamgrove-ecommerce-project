@@ -13,7 +13,7 @@ type UpdateProductReq struct {
 	Name        string `json:"product_name,omitempty"`
 	Description string `json:"description,omitempty"`
 	CategoryID  uint   `json:"brand_id,omitempty"`
-	Price       uint   `json:"price,omitempty"`
+	//Price       uint   `json:"price,omitempty"`
 	//Image       string `json:"image,omitempty"`
 }
 type UpdateProductItemReq struct {
@@ -36,8 +36,8 @@ type Category struct {
 }
 
 type ProductItemReq struct {
-	ProductID uint `json:"product_id" binding:"required"`
-	//ProductBrand  string `json:"product_brand" binding:"required"`
+	ProductID    uint   `json:"product_id" binding:"required"`
+	ProductBrand string `json:"product_brand" binding:"required"`
 
 	QtyInStock    uint `json:"qty_in_stock" binding:"required"`
 	Price         uint `json:"price"`

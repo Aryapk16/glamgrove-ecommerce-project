@@ -3,9 +3,12 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
+	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
+	"glamgrove/pkg/utils"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
 )
@@ -115,6 +118,7 @@ func (o *OrderUseCase) UpdateOrderStatus(c context.Context, order_id uint) (resp
 	}
 	return orderResp, nil
 }
+
 func (o *OrderUseCase) FindTotalAmountByOrderId(c context.Context, order_id uint) (float64, error) {
 	totalAmount, err := o.OrderRepository.FindTotalAmountByOrderId(c, order_id)
 	if err != nil {
@@ -122,12 +126,64 @@ func (o *OrderUseCase) FindTotalAmountByOrderId(c context.Context, order_id uint
 	}
 	return totalAmount, nil
 }
+
+func (o *OrderUseCase) FindPhoneEmailByUserId(c context.Context, usr_id int) (response.PhoneEmailResp, error) {
+	phnEmail, err := o.OrderRepository.FindPhoneEmailByUserId(c, usr_id)
+	if err != nil {
+		return response.PhoneEmailResp{}, err
+	}
+	return phnEmail, nil
+}
 func (o *OrderUseCase) ReturnRequest(c context.Context, returnOrder domain.OrderReturn) (response.ReturnResponse, error) {
 	returnResp, err := o.OrderRepository.ReturnRequest(c, returnOrder)
 	if err != nil {
 		return response.ReturnResponse{}, err
 	}
 	return returnResp, nil
+}
+
+func (o *OrderUseCase) GetRazorpayOrder(c context.Context, userID uint, razorPay request.RazorPayReq) (response.ResRazorpayOrder, error) {
+	var razorpayOrder response.ResRazorpayOrder
+	//fmt.Println(razorPay)
+	//razorpay amount is caluculate on pisa for india so make the actual price into paisa
+	razorPayAmount := uint(razorPay.Total_Amount * 100)
+
+	razopayOrderId, err := utils.GenerateRazorpayOrder(razorPayAmount, "test reciept")
+	if err != nil {
+		return razorpayOrder, err
+	}
+	fmt.Println(razopayOrderId)
+	// set all details on razopay order
+	razorpayOrder.AmountToPay = uint(razorPay.Total_Amount)
+
+	razorpayOrder.RazorpayKey, _ = config.GetRazorPayConfig()
+
+	razorpayOrder.UserID = userID
+	razorpayOrder.RazorpayOrderID = razopayOrderId
+
+	razorpayOrder.Email = razorPay.Email
+	razorpayOrder.Phone = razorPay.Phone
+
+	return razorpayOrder, nil
+}
+
+func (o *OrderUseCase) UpdateStatusRazorpay(c context.Context, order_id uint) (response.OrderResponse, error) {
+	order_status := "Order confirmed"
+	payment_status := "Payment Done"
+	delivery_status := "Order delivered successfully"
+	orderResp, err := o.OrderRepository.UpdateStatusRazorpay(c, order_id, order_status, payment_status, delivery_status)
+	if err != nil {
+		return response.OrderResponse{}, err
+	}
+	return orderResp, nil
+}
+
+func (o *OrderUseCase) SalesReport(c context.Context, page request.ReqPagination, salesData request.ReqSalesReport) ([]response.SalesReport, error) {
+	salesReport, err := o.OrderRepository.SalesReport(c, page, salesData)
+	if err != nil {
+		return []response.SalesReport{}, err
+	}
+	return salesReport, nil
 }
 
 func (o *OrderUseCase) VerifyOrderID(c context.Context, id uint, orderid uint) error {

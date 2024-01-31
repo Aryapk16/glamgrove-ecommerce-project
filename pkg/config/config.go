@@ -8,22 +8,24 @@ import (
 )
 
 type Config struct {
-	DBHost        string `mapstructure:"DB_HOST"`
-	DBUser        string `mapstructure:"DB_USER"`
-	DBPassword    string `mapstructure:"DB_PASSWORD"`
-	DBName        string `mapstructure:"DB_NAME"`
-	DBPort        string `mapstructure:"DB_PORT"`
-	DATABASE      string `mapstructure:"DATABASE"`
-	JWT           string `mapstructure:"SECRET_KEY"`
-	AUTHTOKEN     string `mapstructure:"TWILIO_AUTH_TOKEN"`
-	ACCOUNTSID    string `mapstructure:"TWILIO_ACCOUNT_SID"`
-	SERVICESID    string `mapstructure:"TWILIO_SERVICES_ID"`
-	USERNAME      string `mapstructure:"USER_NAME"`
-	ADMINPASSWORD string `mapstructure:"ADMIN_PASSWORD"`
+	DBHost         string `mapstructure:"DB_HOST"`
+	DBUser         string `mapstructure:"DB_USER"`
+	DBPassword     string `mapstructure:"DB_PASSWORD"`
+	DBName         string `mapstructure:"DB_NAME"`
+	DBPort         string `mapstructure:"DB_PORT"`
+	DATABASE       string `mapstructure:"DATABASE"`
+	JWT            string `mapstructure:"SECRET_KEY"`
+	AUTHTOKEN      string `mapstructure:"TWILIO_AUTH_TOKEN"`
+	ACCOUNTSID     string `mapstructure:"TWILIO_ACCOUNT_SID"`
+	SERVICESID     string `mapstructure:"TWILIO_SERVICES_ID"`
+	USERNAME       string `mapstructure:"USER_NAME"`
+	ADMINPASSWORD  string `mapstructure:"ADMIN_PASSWORD"`
+	RazorPayKey    string `mapstructure:"RAZOR_PAY_KEY"`
+	RazorPaySecret string `mapstructure:"RAZOR_PAY_SECRET"`
 }
 
 var envs = []string{
-	"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT", "TWILIO_AUTH_TOKEN", "TWILIO_ACCOUNT_SID", "TWILIO_SERVICES_ID","USER_NAME","ADMIN_PASSWORD",
+	"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT", "TWILIO_AUTH_TOKEN", "TWILIO_ACCOUNT_SID", "TWILIO_SERVICES_ID", "USER_NAME", "ADMIN_PASSWORD", "RAZOR_PAY_KEY", "RAZOR_PAY_SECRET",
 }
 var config Config
 
@@ -52,8 +54,8 @@ func LoadConfig() (Config, error) {
 	return config, nil
 
 }
-func GetAdminDetails()(string,string){
-	return config.USERNAME,config.ADMINPASSWORD
+func GetAdminDetails() (string, string) {
+	return config.USERNAME, config.ADMINPASSWORD
 }
 func GetConfig() Config {
 	return config
@@ -62,4 +64,7 @@ func GetConfig() Config {
 // to get the secret code for JWT
 func GetJWTConfig() string {
 	return config.JWT
+}
+func GetRazorPayConfig() (string, string) {
+	return config.RazorPayKey, config.RazorPaySecret
 }

@@ -23,7 +23,10 @@ type OrderRepository interface {
 	UpdateOrderStatus(c context.Context, order_id uint, order_status string) (response.OrderResponse, error)
 
 	FindTotalAmountByOrderId(c context.Context, order_id uint) (float64, error)
+	FindPhoneEmailByUserId(c context.Context, usr_id int) (response.PhoneEmailResp, error)
 
+	UpdateStatusRazorpay(c context.Context, order_id uint, order_status string, payment_status string, delivery_status string) (response.OrderResponse, error)
+	SalesReport(c context.Context, page request.ReqPagination, salesData request.ReqSalesReport) ([]response.SalesReport, error)
 	ReturnRequest(c context.Context, returnOrder domain.OrderReturn) (response.ReturnResponse, error)
 	VerifyOrderID(c context.Context, id uint, orderid uint) error
 

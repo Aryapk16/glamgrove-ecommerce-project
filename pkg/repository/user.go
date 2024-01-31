@@ -147,7 +147,7 @@ func (i *userDatabase) GetUserbyID(ctx context.Context, userId uint) (domain.Use
 func (i *userDatabase) SavetoCart(ctx context.Context, addToCart request.AddToCartReq) error {
 	// Get product price from the product table
 	query := `SELECT price FROM products WHERE id = $1`
-	if err := i.DB.Raw(query, addToCart.ProductID).Scan(&addToCart.Price).Error; err != nil {
+	if err := i.DB.Raw(query, addToCart.ProductItemID).Scan(&addToCart.Price).Error; err != nil {
 		return err
 	}
 	if addToCart.Price == 0 {
@@ -169,9 +169,9 @@ func (i *userDatabase) SavetoCart(ctx context.Context, addToCart request.AddToCa
 	}
 
 	// Check if the product already exists in the cart
-	query = `SELECT id FROM cart_items WHERE product_id = $1 AND cart_id = $2`
+	query = `SELECT id FROM cart_items WHERE product_item_id = $1 AND cart_id = $2`
 	var cartItemID int
-	if err := i.DB.Raw(query, addToCart.ProductID, cartID).Scan(&cartItemID).Error; err != nil {
+	if err := i.DB.Raw(query, addToCart.ProductItemID, cartID).Scan(&cartItemID).Error; err != nil {
 		return err
 	}
 	if cartItemID != 0 {
@@ -179,15 +179,15 @@ func (i *userDatabase) SavetoCart(ctx context.Context, addToCart request.AddToCa
 		query = `UPDATE cart_items SET quantity = quantity + $1, updated_at = $2 WHERE id = $3`
 		updatedAt := time.Now()
 		if err := i.DB.Exec(query, addToCart.Quantity, updatedAt, cartItemID).Error; err != nil {
-			return fmt.Errorf("failed to save cart item %v", addToCart.ProductID)
+			return fmt.Errorf("failed to save cart item %v", addToCart.ProductItemID)
 		}
 	} else {
 		// Insert the product into the cart_items table
-		query = `INSERT INTO cart_items (cart_id, product_id, quantity, price, created_at)
+		query = `INSERT INTO cart_items (cart_id, product_item_id, quantity, price, created_at)
 		VALUES ($1, $2, $3, $4, $5)`
 		createdAt := time.Now()
-		if err := i.DB.Exec(query, cartID, addToCart.ProductID, addToCart.Quantity, addToCart.Price, createdAt).Error; err != nil {
-			return fmt.Errorf("failed to save cart item %v", addToCart.ProductID)
+		if err := i.DB.Exec(query, cartID, addToCart.ProductItemID, addToCart.Quantity, addToCart.Price, createdAt).Error; err != nil {
+			return fmt.Errorf("failed to save cart item %v", addToCart.ProductItemID)
 		}
 	}
 
@@ -232,7 +232,7 @@ func (i *userDatabase) GetCartItemsbyUserId(ctx context.Context, page request.Re
 		SELECT ci.cart_id, p.name, p.price, ci.price AS discount_price,
 			ci.quantity, ci.price * ci.quantity AS sub_total
 		FROM cart_items ci
-		JOIN products p ON ci.product_id = p.id
+		JOIN products p ON ci.product_item_id = p.id
 		WHERE cart_id = $1
 		ORDER BY ci.created_at DESC
 		LIMIT $2 OFFSET $3
@@ -255,11 +255,11 @@ func (i *userDatabase) UpdateCart(ctx context.Context, cartUpdates request.Updat
 		UPDATE cart_items 
 		SET quantity = COALESCE($3, quantity),
 		updated_at = $4
-		WHERE cart_id = $1 AND product_id = $2
+		WHERE cart_id = $1 AND product_item_id = $2
 	`
 	updatedAt := time.Now()
 
-	if err := i.DB.Exec(query, cartID, cartUpdates.ProductID, cartUpdates.Quantity, updatedAt).Error; err != nil {
+	if err := i.DB.Exec(query, cartID, cartUpdates.ProductItemID, cartUpdates.Quantity, updatedAt).Error; err != nil {
 		return err
 	}
 

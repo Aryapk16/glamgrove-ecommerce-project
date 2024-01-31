@@ -19,9 +19,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 	login := api.Group("/login")
 	{
 		login.POST("/", userHandler.LoginSubmit)
-		//login.POST("/otp-verify", userHandler.UserOTPVerify)
 	}
-	
+
 	//forgotpassword
 	forgotpass := api.Group("/sendotp")
 	{
@@ -61,7 +60,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 			order.GET("/listOrder", orderHandler.ListAllOrders)
 			order.DELETE("/cancelOrder", orderHandler.CancelOrder)
 			order.POST("/placeOrder", orderHandler.PlaceOrder)
-			//order.POST("/payment", orderHandler.CheckOut)
+			order.POST("/payment", orderHandler.CheckOut)
 		}
 		Return := api.Group("/return")
 		{

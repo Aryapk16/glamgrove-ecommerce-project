@@ -56,5 +56,10 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 			paymentmethod.DELETE("/delete", paymentHandler.DeleteMethod)
 		}
 
+		dashboard := api.Group("/dashboard")
+		{
+			dashboard.GET("/salesReport", orderHandler.SalesReport)
+		}
+
 	}
 }

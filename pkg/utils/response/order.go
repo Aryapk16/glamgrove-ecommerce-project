@@ -12,6 +12,19 @@ type OrderResponse struct {
 	Address_Id     uint    `json:"address_id" `
 	Payment_Method string  `json:"payment_method"`
 }
+type PhoneEmailResp struct {
+	Phone string
+	Email string
+}
+type ResRazorpayOrder struct {
+	RazorpayKey     string      `json:"razorpay_key"`
+	UserID          uint        `json:"user_id"`
+	AmountToPay     uint        `json:"amount_to_pay"`
+	RazorpayOrderID interface{} `json:"razorpay_order_id"`
+	Email           string      `json:"email"`
+	Phone           string      `json:"phone"`
+}
+
 type ReturnResponse struct {
 	ID           uint      `gorm:"serial primaryKey;autoIncrement:true;unique"`
 	OrderID      uint      `json:"order_id" gorm:"not null;unique"`

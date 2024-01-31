@@ -15,6 +15,7 @@ func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.User
 	engine := gin.New()
 
 	engine.Use(gin.Logger())
+	engine.LoadHTMLGlob("views/*.html")
 
 	//Calling routes
 	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, orderHandler, paymentHandler)

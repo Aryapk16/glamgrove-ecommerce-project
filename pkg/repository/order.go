@@ -190,6 +190,34 @@ func (o *OrderDatabase) FindPaymentMethodIdByOrderId(c context.Context, order_id
 	}
 	return uint(order.PaymentMethodID), nil
 }
+
+func (o *OrderDatabase) FindPhoneEmailByUserId(c context.Context, usr_id int) (response.PhoneEmailResp, error) {
+	var phnEmail response.PhoneEmailResp
+	query := `SELECT phone,email FROM users WHERE id=?`
+	err := o.DB.Raw(query, usr_id).Scan(&phnEmail).Error
+	if err != nil {
+		return response.PhoneEmailResp{}, errors.New("failed to fetch details")
+	}
+	return phnEmail, nil
+}
+
+// razorpay
+func (o *OrderDatabase) UpdateStatusRazorpay(c context.Context, order_id uint, order_status string, payment_status string, delivery_status string) (response.OrderResponse, error) {
+	var order domain.Order
+	var orderResp response.OrderResponse
+	query := `update orders set order_status=?,payment_status=?, delivery_status=? where order_id=?`
+	err := o.DB.Raw(query, order_status, payment_status, delivery_status, order_id).Scan(&order).Error
+	if err != nil {
+		return response.OrderResponse{}, errors.New("failed to update order status")
+	}
+	query1 := `select o.total_amount,o.order_status,o.address_id,p.payment_method from orders as o left join payment_methods as p on o.payment_method_id=p.id where o.order_id=?`
+	err1 := o.DB.Raw(query1, order_id).Scan(&orderResp).Error
+	if err1 != nil {
+		return orderResp, errors.New("failed to display order details")
+	}
+	return orderResp, nil
+}
+
 func (o *OrderDatabase) ReturnRequest(c context.Context, returnOrder domain.OrderReturn) (response.ReturnResponse, error) {
 	var returnres response.ReturnResponse
 	err := o.DB.Create(&returnOrder).Error
@@ -211,6 +239,62 @@ func (o *OrderDatabase) VerifyOrderID(c context.Context, id uint, orderid uint) 
 		return errors.New("invalid order id")
 	}
 	return nil
+}
+func (o *OrderDatabase) SalesReport(c context.Context, page request.ReqPagination, salesData request.ReqSalesReport) ([]response.SalesReport, error) {
+	var sales []response.SalesReport
+
+	//limit := page.Count
+	//offset := (page.PageNumber - 1) * limit
+
+	db := o.DB.Model(&domain.Order{})
+
+	query := `
+		SELECT
+			u.id,
+			u.user_name,
+			u.email,
+			o.order_date,
+			o.total_amount AS order_total_price,
+			o.order_status,
+			o.delivery_status,
+			o.payment_status
+		FROM
+			orders AS o
+			LEFT JOIN users AS u ON o.user_id = u.id
+			LEFT JOIN payment_methods AS p ON o.payment_method_id = p.id
+		WHERE o.order_date >= ? AND o.order_date <= ?
+		
+	`
+
+	rows, err := db.Raw(query, salesData.StartDate, salesData.EndDate).Rows()
+	if err != nil {
+		return []response.SalesReport{}, errors.New("query didn't work")
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var sale response.SalesReport
+
+		err := rows.Scan(
+			&sale.UserID,
+			&sale.Name,
+			&sale.Email,
+			&sale.OrderDate,
+			&sale.OrderTotalPrice,
+			&sale.OrderStatus,
+			&sale.DeliveryStatus,
+			&sale.PaymentStatus,
+		)
+
+		if err != nil {
+			return []response.SalesReport{}, errors.New("scaning didn't work")
+		}
+		sales = append(sales, sale)
+	}
+	//fmt.Println("sales report", sales)
+
+	return sales, nil
 }
 
 func (o *OrderDatabase) GetAllPendingReturnOrder(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error) {

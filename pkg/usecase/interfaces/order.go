@@ -19,11 +19,16 @@ type OrderService interface {
 	FindTotalAmountByOrderId(c context.Context, order_id uint) (float64, error)
 
 	FindPaymentMethodIdByOrderId(c context.Context, order_id uint) (uint, error)
+	FindPhoneEmailByUserId(c context.Context, usr_id int) (response.PhoneEmailResp, error)
 
+	GetRazorpayOrder(c context.Context, userID uint, razorPay request.RazorPayReq) (response.ResRazorpayOrder, error)
+	UpdateStatusRazorpay(c context.Context, order_id uint) (response.OrderResponse, error)
 	UpdateOrderStatus(c context.Context, order_id uint) (response.OrderResponse, error)
 
 	ReturnRequest(c context.Context, returnOrder domain.OrderReturn) (response.ReturnResponse, error)
 	VerifyOrderID(c context.Context, id uint, orderid uint) error
+
+	SalesReport(c context.Context, page request.ReqPagination, salesData request.ReqSalesReport) ([]response.SalesReport, error)
 
 	GetAllPendingReturnRequest(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error)
 }

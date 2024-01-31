@@ -53,8 +53,8 @@ func (u *UserHandler) LoginSubmit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	if body.Email == "" && body.Password == "" && body.UserName == "" {
-		_ = errors.New("Please enter user_name and password")
+	if body.Email == "" && body.Password == "" {
+		_ = errors.New("Please enter Email and password")
 		response := "Field should not be empty"
 		c.JSON(http.StatusBadRequest, response)
 		return
@@ -306,7 +306,7 @@ func (u *UserHandler) AddToCart(c *gin.Context) {
 	var body request.AddToCartReq
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response := response.ErrorResponse(400, "invalid input", err.Error(), body.ProductID)
+		response := response.ErrorResponse(400, "invalid input", err.Error(), body.ProductItemID)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
