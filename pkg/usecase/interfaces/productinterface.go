@@ -20,4 +20,5 @@ type ProductService interface {
 	AddProductItem(ctx context.Context, productItem request.ProductItemReq) error
 	GetProductItem(ctx context.Context, productId uint) (ProductItems []response.ProductItemResp, count int, err error)
 	AddImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductImage, error)
+	AddItemImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductItemImage, error)
 }

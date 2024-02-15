@@ -388,3 +388,52 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfully generated pdf", " ")
 	c.JSON(200, response)
 }
+
+// func (O *OrderHandler) PrintInvoice(c *gin.Context) {
+// 	userId, _ := c.Get("id")
+// 	userID := userId.(int)
+
+// 	orderId := c.Query("order_id")
+// 	orderIdInt, err := strconv.Atoi(orderId)
+// 	if err != nil {
+// 		err = errors.New(errmsg.ErrDatatypeConversion + err.Error())
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgIdErr, nil, err)
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+// 	pdf, err := O.orderUsecase.PrintInvoice(orderIdInt, userID)
+// 	fmt.Println("error ", err)
+// 	if err != nil {
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+
+// 	c.Header("Content-Disposition", "attachment;filename=invoice.pdf")
+
+// 	pdfFilePath := "salesReport/invoice.pdf"
+
+// 	err = pdf.OutputFileAndClose(pdfFilePath)
+// 	if err != nil {
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err)
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+
+// 	c.Header("Content-Disposition", "attachment; filename=sales_report.pdf")
+// 	c.Header("Content-Type", "application/pdf")
+
+// 	c.File(pdfFilePath)
+
+// 	c.Header("Content-Type", "application/pdf")
+
+// 	err = pdf.Output(c.Writer)
+// 	if err != nil {
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err)
+// 		c.JSON(http.StatusBadRequest, errRes)
+// 		return
+// 	}
+
+// 	successRes := response.ErrorResponse(http.StatusOK, errmsg.MsgSuccess, pdf, nil)
+// 	c.JSON(http.StatusOK, successRes)
+// }

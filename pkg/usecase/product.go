@@ -99,6 +99,46 @@ func (p *productUseCase) AddImage(c context.Context, pid int, files []*multipart
 	return images, nil
 }
 
+func (p *productUseCase) AddItemImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductItemImage, error) {
+	var images []domain.ProductItemImage
+	for _, file := range files {
+		// Generate a unique filename for the image
+
+		ext := filepath.Ext(file.Filename)
+		filename := uuid.New().String() + ext
+
+		image, err := p.ProductRepository.AddItemImage(c, pid, filename)
+		if err != nil {
+			return []domain.ProductItemImage{}, err
+		}
+
+		src, err := file.Open()
+		if err != nil {
+			return []domain.ProductItemImage{}, err
+		}
+		defer src.Close()
+
+		// Create the destination file
+		dst, err := os.Create(filepath.Join("images", filename)) // Replace "path/to/save/images" with your desired directory
+		if err != nil {
+			return []domain.ProductItemImage{}, err
+		}
+		defer dst.Close()
+
+		// Copy the uploaded file's content to the destination file
+		_, err = io.Copy(dst, src)
+		if err != nil {
+			return []domain.ProductItemImage{}, err
+		}
+		// product, _ := pu.productRepo.GetProductByID(c, pid)
+		// image.Product = product
+
+		images = append(images, image)
+	}
+
+	return images, nil
+}
+
 func (p *productUseCase) GetProducts(ctx context.Context, page request.ReqPagination) (products []response.ResponseProduct, err error) {
 	return p.ProductRepository.GetAllProducts(ctx, page)
 }

@@ -50,6 +50,10 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 		//order
 		domain.Order{},
 		domain.OrderReturn{},
+		domain.ProductItemImage{},
+
+		//coupon
+		domain.Coupon{},
 	)
 
 	if err != nil {

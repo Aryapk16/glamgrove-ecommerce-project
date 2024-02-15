@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler) {
+func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productHandler *handler.ProductHandler, paymentHandler *handler.PaymentHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler) {
 
 	signup := api.Group("/signup")
 	{
@@ -51,6 +51,11 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 			cart.GET("/get", userHandler.GetcartItems)
 			cart.PUT("/update", userHandler.UpdateCart)
 			cart.DELETE("/delete", userHandler.DeleteCartItem)
+		}
+
+		coupon := api.Group("/coupons")
+		{
+			coupon.GET("/list", couponHandler.ListAllCoupons)
 		}
 
 		order := api.Group("/order")

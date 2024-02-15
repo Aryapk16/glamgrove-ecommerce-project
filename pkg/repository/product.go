@@ -79,6 +79,18 @@ func (pd *productDatabase) AddImage(c context.Context, pid int, filename string)
 	return image, nil
 }
 
+func (pd *productDatabase) AddItemImage(c context.Context, pid int, filename string) (domain.ProductItemImage, error) {
+
+	// Store the image record in the database
+	image := domain.ProductItemImage{ProductItemID: uint(pid), Image: filename}
+	if err := pd.DB.Create(&image).Error; err != nil {
+
+		return domain.ProductItemImage{}, errors.New("failed to store image record")
+	}
+
+	return image, nil
+}
+
 func (p *productDatabase) GetProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
 	query := `SELECT * FROM products where id = ? product_name = ?`
 	if p.DB.Raw(query, product.ID, product.Name).Scan(&product).Error != nil {
@@ -106,13 +118,14 @@ func (p *productDatabase) GetAllProducts(ctx context.Context, page request.ReqPa
 	limit := page.Count
 	offset := (page.PageNumber - 1) * limit
 
-	query := `SELECT p.id, p.name, p.description, c.category_name, p.price, p.discount_price,
-	p.created_at, p.updated_at
-	FROM products p LEFT JOIN categories c ON p.category_id = c.id  ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	query := `SELECT p.id, p.name, p.description, c.category_name, p.price, p.discount_price, p.created_at, p.updated_at, pi.image FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN product_images pi ON p.id = pi.product_id ORDER BY p.created_at DESC LIMIT $1 OFFSET $2;
+	`
 
 	if p.DB.Raw(query, limit, offset).Scan(&products).Error != nil {
 		return products, errors.New("failed to get products from database")
 	}
+
+	fmt.Println(products[0].Image)
 
 	return products, nil
 }
@@ -212,24 +225,39 @@ func (p *productDatabase) GetProductItems(ctx context.Context, productId uint) (
 
 	// Get product items from the database
 	query := `SELECT
-		p.id AS product_id,
-		pi.id AS product_item_id,
-		pi.qty_in_stock AS stock_available,
-		p.name AS product_name,
-		c.category_name AS brand,
-		p.description,
-		p.price,
-		pi.discount_price AS offer_price
-	FROM
-		products p
-		JOIN categories c ON c.id = p.category_id
-		JOIN product_items pi ON pi.product_id = p.id
-	WHERE
-		p.id = $1`
+    p.id AS product_id,
+    pi.id AS product_item_id,
+    pi.qty_in_stock AS stock_available,
+    p.name AS product_name,
+    c.category_name AS brand,
+    p.description,
+    p.price,
+    pi.discount_price AS offer_price,
+    im.image
+FROM
+    products p
+    JOIN categories c ON c.id = p.category_id
+    JOIN product_items pi ON pi.product_id = p.id
+    LEFT JOIN product_item_images im ON p.id = im.product_item_id
+WHERE
+    p.id = $1;
+`
 	if err := p.DB.Raw(query, productId).Scan(&productItems).Error; err != nil {
 		return productItems, fmt.Errorf("failed to get product items: %v", err)
 	}
 	fmt.Println("Product Items: ", productItems)
+
+	// Fetch product item images
+	query = `SELECT
+		pimg.image
+	FROM
+		product_item_images pimg
+	WHERE product_item_id = $1`
+	for i := range productItems {
+		productItems[i].Images = []string{}
+		p.DB.Raw(query, productItems[i].ProductItemID).Scan(&productItems[i].Images)
+	}
+	fmt.Println("product Id: ", productId)
 
 	return productItems, nil
 }

@@ -20,6 +20,12 @@ func NewPaymentUseCase(repo interfaces.PaymentRepository) service.PaymentService
 
 func (p *PaymentUseCase) AddPaymentMethod(c context.Context, payment domain.PaymentMethod) (domain.PaymentMethod, error) {
 	fmt.Println("use", payment)
+
+	// if payment.PaymentMethod == "1" && pay.OrderTotal > 1000 {
+	// 	return domain.PaymentMethod{}, errors.New("Cash on delivery is not allowed for orders above 1000")
+
+	// }
+
 	err := p.PaymentRepository.FindPaymentMethod(c, payment)
 	fmt.Println(err)
 	if err == nil {
@@ -29,6 +35,7 @@ func (p *PaymentUseCase) AddPaymentMethod(c context.Context, payment domain.Paym
 	if err1 != nil {
 		return domain.PaymentMethod{}, errors.New("Failed to add payment method")
 	}
+
 	return paymentresp, nil
 }
 func (p *PaymentUseCase) GetPaymentMethods(ctx context.Context, page request.ReqPagination) (payment []domain.PaymentMethod, err error) {

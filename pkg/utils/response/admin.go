@@ -12,7 +12,7 @@ type Response struct {
 	Data       interface{} `json:"data,omitempty"`
 }
 
-func ErrorResponse(statusCode int, message string, err string, data interface{}) Response {
+func ErrorResponse(statusCode int, message string, err string, data ...interface{}) Response {
 
 	spiltedError := strings.Split(err, "\n")
 	return Response{

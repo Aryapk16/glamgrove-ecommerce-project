@@ -77,27 +77,56 @@ func (p *ProductHandler) AddImage(c *gin.Context) {
 		c.JSON(400, response)
 		return
 	}
-   form,err:= c.MultipartForm()
+	form, err := c.MultipartForm()
 
-   if err!=nil{
-	response:=response.ErrorResponse(400,"error while fetching image file",err.Error(),form)
-   c.JSON(400,response)
-   return
-   }
-   files:=form.File["image"]
-   if len(files)==0{
-	c.JSON(http.StatusBadRequest,gin.H{"error":"No image file found"})
-	return
-   }
-   Images,err:=p.ProductService.AddImage(c,pid,files)
-   if err!=nil{
-	response:=response.ErrorResponse(400,"can't add images",err.Error(),Images)
-	c.JSON(400,response)
-	return
-   }
-   response:=response.SuccessResponse(200,"successfully added images",Images)
-   c.JSON(200,response)
+	if err != nil {
+		response := response.ErrorResponse(400, "error while fetching image file", err.Error(), form)
+		c.JSON(400, response)
+		return
+	}
+	files := form.File["image"]
+	if len(files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No image file found"})
+		return
+	}
+	Images, err := p.ProductService.AddImage(c, pid, files)
+	if err != nil {
+		response := response.ErrorResponse(400, "can't add images", err.Error(), Images)
+		c.JSON(400, response)
+		return
+	}
+	response := response.SuccessResponse(200, "successfully added images", Images)
+	c.JSON(200, response)
 
+}
+
+func (p *ProductHandler) AddItemImage(c *gin.Context) {
+	pid, err := strconv.Atoi(c.PostForm("product_item_id"))
+	if err != nil {
+		response := response.ErrorResponse(400, "Error while fetching product_item_id", err.Error(), pid)
+		c.JSON(400, response)
+		return
+	}
+	form, err := c.MultipartForm()
+
+	if err != nil {
+		response := response.ErrorResponse(400, "error while fetching image file", err.Error(), form)
+		c.JSON(400, response)
+		return
+	}
+	files := form.File["image"]
+	if len(files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No image file found"})
+		return
+	}
+	Images, err := p.ProductService.AddImage(c, pid, files)
+	if err != nil {
+		response := response.ErrorResponse(400, "can't add images", err.Error(), Images)
+		c.JSON(400, response)
+		return
+	}
+	response := response.SuccessResponse(200, "successfully added images", Images)
+	c.JSON(200, response)
 
 }
 
@@ -161,6 +190,7 @@ func (p *ProductHandler) DeleteProduct(c *gin.Context) {
 	productID := body.ID
 	deletedProduct, err := p.ProductService.DeleteProduct(c, productID)
 	if err != nil {
+
 		response := response.ErrorResponse(500, "Failed to delete product", err.Error(), body)
 		c.JSON(http.StatusInternalServerError, response)
 		return

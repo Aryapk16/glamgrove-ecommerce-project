@@ -9,18 +9,18 @@ type ResponseProduct struct {
 	Category_name string `json:"category_name"`
 	//Price         uint   `json:"price"`
 	//DiscountPrice uint   `json:"discount_price"`
-	//Image     string    `json:"image"`
+	Image     string    `json:"image"`
 	CreatedAt time.Time `json:"created_at" gorm:"not null"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ProductItemResp struct {
-	ProductID      uint   `json:"product_id"`
-	ProductItemID  uint   `json:"product_item_id"`
-	ProductBrand   string `json:"product_brand"`
+	ProductID     uint `json:"product_id"`
+	ProductItemID uint `json:"product_item_id"`
+	//ProductBrand   string `json:"product_brand"`
 	StockAvailable uint   `json:"stock_available"`
 	ProductName    string `json:"product_name"`
-	Category       string `json:"category"`
+	Category       string `json:"category_name"`
 	Description    string `json:"description"`
 
 	Price      uint     `json:"price"`

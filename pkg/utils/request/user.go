@@ -31,6 +31,7 @@ type AddressPatch struct {
 }
 type AddToCartReq struct {
 	UserID         uint    `json:"user_id"`
+	ProductID      uint    `json:"product_id" binding:"required"`
 	ProductItemID  uint    `json:"product_item_id" binding:"required"`
 	Quantity       uint    `json:"quantity" binding:"required"`
 	Price          float64 `json:"-"`
@@ -38,12 +39,14 @@ type AddToCartReq struct {
 }
 type UpdateCartReq struct {
 	UserID        uint `json:"-"`
+	ProductID     uint `json:"product_id" binding:"required"`
 	ProductItemID uint `json:"product_item_id" binding:"required"`
 	Quantity      uint `json:"quantity" binding:"required"`
 }
 type DeleteCartItem struct {
-	UserID    uint `json:"-"`
-	ProductID uint `json:"product_id" binding:"required"`
+	UserID        uint `json:"-"`
+	ProductID     uint `json:"product_id" binding:"required"`
+	ProductItemID uint `json:"product_item_id" binding:"required"`
 }
 
 type OtpCookieStruct struct {

@@ -193,6 +193,7 @@ func (u *UserHandler) VerifyOtp(ctxt *gin.Context) {
 	}
 
 	t := verify.TwilioVerifyOTP("+91"+details.Phone, otp.OTP)
+	fmt.Println(otp)
 
 	if t != nil {
 		resp := response.ErrorResponse(400, "Invalid otp", t.Error(), nil)

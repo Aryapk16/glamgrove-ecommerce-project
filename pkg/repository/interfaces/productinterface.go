@@ -19,7 +19,8 @@ type ProductRepository interface {
 	AddCategory(ctx context.Context, brand request.Category) (err error)
 	GetAllBrand(ctx context.Context) (brand []response.Brand, err error)
 
-    AddImage(c context.Context, pid int, filename string) (domain.ProductImage, error)
+	AddImage(c context.Context, pid int, filename string) (domain.ProductImage, error)
+	AddItemImage(c context.Context, pid int, filename string) (domain.ProductItemImage, error)
 
 	//product item
 	AddProductItem(ctx context.Context, productItem request.ProductItemReq) error

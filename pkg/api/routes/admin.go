@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler) {
+func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler) {
 	//login
 	login := api.Group("/login")
 	{
@@ -44,9 +44,18 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 			product.PUT("/update", productHandler.UpdateProduct)
 			product.DELETE("/delete", productHandler.DeleteProduct)
 			product.POST("/addimage", productHandler.AddImage)
-
 			product.POST("/product-item", productHandler.AddProductItem)
 			product.GET("/product-item/:product_id", productHandler.GetProductItem)
+			product.POST("/additemimage", productHandler.AddItemImage)
+
+		}
+
+		coupons := api.Group("/coupons")
+		{
+			coupons.GET("/list", couponHandler.ListAllCoupons)
+			coupons.POST("/create", couponHandler.CreateNewCoupon)
+			coupons.DELETE("/invalid", couponHandler.MakeCouponInvalid)
+			coupons.PUT("reactivate", couponHandler.ReActivateCoupon)
 		}
 		paymentmethod := api.Group("/paymentmethod")
 		{
