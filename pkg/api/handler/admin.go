@@ -159,3 +159,33 @@ func (a *AdminHandler) ApproveReturnOrder(c *gin.Context) {
 	response := response.SuccessResponse(http.StatusOK, "Return Order Approved", body)
 	c.JSON(http.StatusOK, response)
 }
+
+// ...............................dashboard
+func (a *AdminHandler) DashBoard(c *gin.Context) {
+	dashBoard, err := a.adminUseCase.DashBoard(c)
+	if err != nil {
+		errRes := response.ErrorResponse(http.StatusBadRequest, "error in getting dashboard details", err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
+	sucessRes := response.SuccessResponse(http.StatusOK, "succesfully recevied all records", dashBoard, nil)
+	c.JSON(http.StatusOK, sucessRes)
+}
+
+// .............perya
+
+func (a *AdminHandler) FilteredSalesReport(c *gin.Context) {
+
+	timePeriod := c.Param("period")
+	salesReport, err := a.adminUseCase.FilteredSalesReport(c, timePeriod)
+	if err != nil {
+		errorRes := response.ErrorResponse(http.StatusInternalServerError, "sales report could not be retrieved", err.Error())
+		c.JSON(http.StatusInternalServerError, errorRes)
+		return
+	}
+
+	successRes := response.SuccessResponse(http.StatusOK, "sales report retrieved successfully", salesReport, nil)
+	c.JSON(http.StatusOK, successRes)
+
+}

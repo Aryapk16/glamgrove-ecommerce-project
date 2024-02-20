@@ -29,3 +29,16 @@ type OrderReturn struct {
 	ReturnDate   time.Time `json:"return_date"`
 	ReturnStatus string    `json:"return_status"`
 }
+
+//...........................................
+
+type Sale struct {
+	UserID          int
+	Name            string
+	Email           string
+	OrderDate       time.Time
+	OrderTotalPrice float64
+	OrderStatus     string
+	PaymentStatus   bool
+	// Other fields
+}

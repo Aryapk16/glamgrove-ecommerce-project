@@ -31,4 +31,7 @@ type OrderService interface {
 	SalesReport(c context.Context, page request.ReqPagination, salesData request.ReqSalesReport) ([]response.SalesReport, error)
 
 	GetAllPendingReturnRequest(c context.Context, page request.ReqPagination) ([]response.ReturnRequests, error)
+
+	//PrintInvoice(orderIdInt, userID int) (*gofpdf.Fpdf, error)
+	//PrintInvoice(orderIdInt int) (*gofpdf.Fpdf, error)
 }

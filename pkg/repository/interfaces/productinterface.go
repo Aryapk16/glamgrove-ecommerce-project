@@ -5,6 +5,7 @@ import (
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"time"
 )
 
 type ProductRepository interface {
@@ -25,4 +26,7 @@ type ProductRepository interface {
 	//product item
 	AddProductItem(ctx context.Context, productItem request.ProductItemReq) error
 	GetProductItems(ctx context.Context, productId uint) ([]response.ProductItemResp, error)
+
+	//sales
+	SalesData(sDate, Edate time.Time) (response.SalesResponse, error)
 }

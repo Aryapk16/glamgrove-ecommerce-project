@@ -13,6 +13,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -189,4 +190,13 @@ func (p *productUseCase) GetProductItem(ctx context.Context, productId uint) (Pr
 	count = len(productItems)
 
 	return productItems, count, nil
+}
+
+func (pu *productUseCase) SalesData(sDate, Edate time.Time) (response.SalesResponse, error) {
+	salesData, err := pu.ProductRepository.SalesData(sDate, Edate)
+	if err != nil {
+		return response.SalesResponse{}, err
+	}
+
+	return salesData, nil
 }

@@ -32,3 +32,9 @@ type Brand struct {
 	ID           uint   `json:"Brand_id"`
 	CategoryName string `json:"Brand_name"`
 }
+type SalesResponse struct {
+	TotalOrder     int64 `json:"total_order"`
+	DeliveredOrder int64 `json:"delivered_order"`
+	PendingOrder   int64 `json:"pending_order"`
+	CancelledOrder int64 `json:"canncelled_order"`
+}

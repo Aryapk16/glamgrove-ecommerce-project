@@ -23,7 +23,7 @@ func NewPaymentRepository(db *gorm.DB) interfaces.PaymentRepository {
 func (pd *PaymentDatabase) AddPaymentMethod(c context.Context, payment domain.PaymentMethod) (domain.PaymentMethod, error) {
 	err := pd.DB.Create(&payment).Error
 	if err != nil {
-		return domain.PaymentMethod{}, errors.New("Failed to add payment method")
+		return domain.PaymentMethod{}, errors.New("failed to add payment method")
 	}
 	return payment, nil
 }
@@ -36,7 +36,7 @@ func (pd *PaymentDatabase) FindPaymentMethod(c context.Context, payment domain.P
 	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE payment_method=$1", payment.PaymentMethod).Scan(&payment_methods).Error
 	if err != nil {
 
-		return errors.New("Failed to find payment method")
+		return errors.New("failed to find payment method")
 	}
 
 	fmt.Println(payment_methods.ID)
@@ -44,7 +44,7 @@ func (pd *PaymentDatabase) FindPaymentMethod(c context.Context, payment domain.P
 	if payment_methods.ID > 0 {
 		return nil
 	}
-	return errors.New("Payment not found")
+	return errors.New("payment not found")
 }
 
 // Find payment method by ID
@@ -53,7 +53,7 @@ func (pd *PaymentDatabase) FindPaymentMethodId(c context.Context, method_id uint
 	err := pd.DB.Raw("SELECT * FROM payment_methods WHERE id=$1", method_id).First(&payment_methods).Error
 	if err != nil {
 
-		return 0, errors.New("Failed to find payment method")
+		return 0, errors.New("failed to find payment method")
 	}
 	return payment_methods.ID, nil
 }
@@ -75,7 +75,7 @@ func (p *PaymentDatabase) DeleteMethod(c context.Context, id uint) error {
 	query := `delete from payment_methods where id=?`
 	err := p.DB.Raw(query, id).Scan(&paymentmethod).Error
 	if err != nil {
-		return errors.New("Failed to delete payment method")
+		return errors.New("failed to delete payment method")
 	}
 	return nil
 
@@ -86,7 +86,7 @@ func (p *PaymentDatabase) UpdatePaymentMethod(c context.Context, payment domain.
 	query := `update payment_methods set payment_method=? where id=?`
 	err := p.DB.Raw(query, payment.PaymentMethod, payment.ID).Scan(&payment).Error
 	if err != nil {
-		return domain.PaymentMethod{}, errors.New("Failed to update payment method details")
+		return domain.PaymentMethod{}, errors.New("failed to update payment method details")
 	}
 	return payment, nil
 }

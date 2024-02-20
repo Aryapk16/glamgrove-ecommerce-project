@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"glamgrove/pkg/domain"
 	service "glamgrove/pkg/usecase/interfaces"
@@ -177,6 +178,7 @@ func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// checkout
 func (o *OrderHandler) CheckOut(c *gin.Context) {
 	var razorPay request.RazorPayReq
 	order_id, err := strconv.Atoi(c.Query("order_id"))
@@ -192,12 +194,18 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 		return
 	}
 	if payment_method_id == 1 {
+		if razorPay.Total_Amount >= 1000 {
+			response := response.ErrorResponse(400, "above 1000 cannot be placed .please select another ", errors.New("payment method error").Error(), "")
+			c.JSON(400, response)
+			return
+		}
 		orderREsp, err := o.OrderService.UpdateOrderStatus(c, uint(order_id))
 		if err != nil {
 			response := response.ErrorResponse(400, "Failed to place order", err.Error(), "")
 			c.JSON(400, response)
 			return
 		}
+
 		response := response.SuccessResponse(200, "Successfully  confirmed order", orderREsp)
 		c.JSON(200, response)
 		return
@@ -389,22 +397,21 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 	c.JSON(200, response)
 }
 
-// func (O *OrderHandler) PrintInvoice(c *gin.Context) {
-// 	userId, _ := c.Get("id")
-// 	userID := userId.(int)
+//printvoice
 
+// func (O *OrderHandler) PrintInvoice(c *gin.Context) {
 // 	orderId := c.Query("order_id")
 // 	orderIdInt, err := strconv.Atoi(orderId)
 // 	if err != nil {
-// 		err = errors.New(errmsg.ErrDatatypeConversion + err.Error())
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgIdErr, nil, err)
+// 		//err = errors.New("error in coverting order id" + err.Error())
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in reading the order id", err.Error())
 // 		c.JSON(http.StatusBadRequest, errRes)
 // 		return
 // 	}
-// 	pdf, err := O.orderUsecase.PrintInvoice(orderIdInt, userID)
+// 	pdf, err := O.OrderService.PrintInvoice(orderIdInt)
 // 	fmt.Println("error ", err)
 // 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err.Error())
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing the invoice", err.Error())
 // 		c.JSON(http.StatusBadRequest, errRes)
 // 		return
 // 	}
@@ -415,7 +422,7 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 
 // 	err = pdf.OutputFileAndClose(pdfFilePath)
 // 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err)
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing invoice", err.Error())
 // 		c.JSON(http.StatusBadRequest, errRes)
 // 		return
 // 	}
@@ -429,11 +436,162 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 
 // 	err = pdf.Output(c.Writer)
 // 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, errmsg.MsgPrintErr, nil, err)
+// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing invoice", err.Error())
 // 		c.JSON(http.StatusBadRequest, errRes)
 // 		return
 // 	}
 
-// 	successRes := response.ErrorResponse(http.StatusOK, errmsg.MsgSuccess, pdf, nil)
+// 	successRes := response.SuccessResponse(http.StatusOK, "the request was succesful", pdf)
 // 	c.JSON(http.StatusOK, successRes)
+// }
+
+// /................................................
+
+// func (o *OrderHandler) SalesReport(c *gin.Context) {
+// 	count, err1 := utils.StringToUint(c.Query("count"))
+// 	if err1 != nil {
+// 		response := response.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+// 		c.JSON(http.StatusBadRequest, response)
+// 		return
+// 	}
+
+// 	pageNumber, err2 := utils.StringToUint(c.Query("page_number"))
+// 	if err2 != nil {
+// 		response := response.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+// 		c.JSON(http.StatusBadRequest, response)
+// 		return
+// 	}
+
+// 	// Parse start and end dates
+// 	sDate, err := utils.StringToTime(c.Query("startDate"))
+// 	if err != nil {
+// 		response := response.ErrorResponse(400, "Please add start date as params", err.Error(), "")
+// 		c.JSON(400, response)
+// 		return
+// 	}
+
+// 	eDate, err := utils.StringToTime(c.Query("endDate"))
+// 	if err != nil {
+// 		response := response.ErrorResponse(400, "Please add end date as params", err.Error(), "")
+// 		c.JSON(400, response)
+// 		return
+// 	}
+
+// 	// Parse report type (yearly, daily, weekly)
+// 	reportType := c.Query("reportType")
+
+// 	// Set pagination parameters
+// 	pagination := request.ReqPagination{
+// 		PageNumber: pageNumber,
+// 		Count:      count,
+// 	}
+
+// 	switch reportType {
+// 	case "yearly":
+// 		// Generate yearly reports
+// 		for year := sDate.Year(); year <= eDate.Year(); year++ {
+// 			startOfYear := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)
+// 			endOfYear := time.Date(year, time.December, 31, 23, 59, 59, 999999999, time.UTC)
+
+// 			// Fetch sales data for the year
+// 			salesData := request.ReqSalesReport{
+// 				StartDate: startOfYear,
+// 				EndDate:   endOfYear,
+// 			}
+// 			salesReport, _ := o.OrderService.SalesReport(c, pagination, salesData)
+
+// 			// Generate PDF report
+// 			generatePDF(salesReport, fmt.Sprintf("Sales Report - Year %d", year))
+// 		}
+
+// 	case "daily":
+// 		// Generate daily reports
+// 		for date := sDate; date.Before(eDate.AddDate(0, 0, 1)); date = date.AddDate(0, 0, 1) {
+// 			startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+// 			endOfDay := time.Date(date.Year(), date.Month(), date.Day(), 23, 59, 59, 999999999, time.UTC)
+
+// 			// Fetch sales data for the day
+// 			salesData := request.ReqSalesReport{
+// 				StartDate: startOfDay,
+// 				EndDate:   endOfDay,
+// 			}
+// 			salesReport, _ := o.OrderService.SalesReport(c, pagination, salesData)
+
+// 			// Generate PDF report
+// 			generatePDF(salesReport, fmt.Sprintf("Sales Report - %s", startOfDay.Format("2006-01-02")))
+// 		}
+
+// 	case "weekly":
+// 		// Generate weekly reports
+// 		for date := sDate; date.Before(eDate.AddDate(0, 0, 1)); date = date.AddDate(0, 0, 7) {
+// 			startOfWeek := date
+// 			endOfWeek := startOfWeek.AddDate(0, 0, 6)
+
+// 			// Fetch sales data for the week
+// 			salesData := request.ReqSalesReport{
+// 				StartDate: startOfWeek,
+// 				EndDate:   endOfWeek,
+// 			}
+// 			salesReport, _ := o.OrderService.SalesReport(c, pagination, salesData)
+
+// 			// Generate PDF report
+// 			generatePDF(salesReport, fmt.Sprintf("Sales Report - Week starting %s", startOfWeek.Format("2006-01-02")))
+// 		}
+
+// 	default:
+// 		response := response.ErrorResponse(400, "Invalid report type", "", "")
+// 		c.JSON(http.StatusBadRequest, response)
+// 		return
+// 	}
+
+// 	response := response.SuccessResponse(200, "Successfully generated reports", "")
+// 	c.JSON(http.StatusOK, response)
+// }
+
+// // func generatePDF(salesReport []Sale, title string) {
+// 	// Create a new PDF document
+// 	pdf := gofpdf.New("P", "mm", "A4", "")
+
+// 	// Add a new page
+// 	pdf.AddPage()
+
+// 	// Set the font and font size
+// 	pdf.SetFont("Arial", "i", 12)
+
+// 	// Add the report title
+// 	pdf.CellFormat(0, 15, title, "", 0, "C", false, 0, "")
+// 	pdf.Ln(10)
+
+// 	// Add the sales report data to the PDF
+// 	i := 1
+// 	for _, sale := range salesReport {
+// 		pdf.CellFormat(0, 15, fmt.Sprint(i)+".", "", 0, "L", false, 0, "")
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("User ID: %d", sale.UserID))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("Name: %s", sale.Name))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("Email: %s", sale.Email))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("Order Date: %v", sale.OrderDate))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("TotalPrice: %v", sale.OrderTotalPrice))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("Order Status: %s", sale.OrderStatus))
+// 		pdf.Ln(10)
+// 		pdf.Cell(0, 10, fmt.Sprintf("Payment status: %v", sale.PaymentStatus))
+// 		pdf.Ln(10)
+// 		// pdf.Cell(0, 10, fmt.Sprintf("Payment Type: %v", sale.PaymentType))
+// 		// pdf.Ln(10)
+
+// 		// Move to the next line
+// 		pdf.Ln(10)
+// 		i++
+// 	}
+
+// 	// Generate a temporary file path for the PDF
+// 	pdfFilePath := "/home/arya-pk/Documents/MyProject/GlamGrove/sales_report/file.pdf"
+
+// 	// Save the PDF to the temporary file path
+// 	_ = pdf.OutputFileAndClose(pdfFilePath)
 // }

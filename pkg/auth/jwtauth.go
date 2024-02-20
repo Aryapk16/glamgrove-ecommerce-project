@@ -100,7 +100,7 @@ func ValidateOtpTokens(signedtoken string) (request.OtpCookieStruct, error) {
 	return *claim, nil
 }
 
-//sub as phone number
+// sub as phone number
 func GenerateJWTPhn(phn string) (map[string]string, error) {
 
 	// Create a new token object, specifying signing method and the claims
@@ -118,3 +118,28 @@ func GenerateJWTPhn(phn string) (map[string]string, error) {
 	}
 	return map[string]string{"accessToken": tokenString}, nil
 }
+
+// ....................................
+// func ConvertToExel(sales []models.OrderDetailsAdmin) (*excelize.File, error) {
+
+// 	filename := "salesReport/sales_report.xlsx"
+// 	file := excelize.NewFile()
+
+// 	file.SetCellValue("Sheet1", "A1", "Item")
+// 	file.SetCellValue("Sheet1", "B1", "Total Amount Sold")
+
+// 	for i, sale := range sales {
+// 		col1 := fmt.Sprintf("A%d", i+1)
+// 		col2 := fmt.Sprintf("B%d", i+1)
+
+// 		file.SetCellValue("Sheet1", col1, sale.ProductName)
+// 		file.SetCellValue("Sheet1", col2, sale.TotalAmount)
+
+// 	}
+
+// 	if err := file.SaveAs(filename); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return file, nil
+// }

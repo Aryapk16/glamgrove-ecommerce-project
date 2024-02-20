@@ -51,7 +51,7 @@ func (o *OrderDatabase) FindPaymentMethodById(c context.Context, method_id uint)
 	var payment_methods domain.PaymentMethod
 	err := o.DB.Raw("SELECT * FROM payment_methods WHERE id=?").Error
 	if err != nil {
-		return 0, errors.New("Failed to find payment method")
+		return 0, errors.New("failed to find payment method")
 	}
 	return payment_methods.ID, nil
 }
@@ -63,12 +63,12 @@ func (o *OrderDatabase) UpdateOrderDetails(c context.Context, uporder request.Up
 	query := `update orders set payment_method_id=?, address_id=?, payment_status=?, delivery_status=?  where order_id=?`
 	err := o.DB.Raw(query, uporder.PaymentMethodID, uporder.Address_Id, uporder.Payment_Status, uporder.DeliveryStatus, uporder.Order_Id).Scan(&order).Error
 	if err != nil {
-		return response.OrderResponse{}, errors.New("Error while updating order details")
+		return response.OrderResponse{}, errors.New("error while updating order details")
 	}
 	query1 := `select o.order_id, o.total_amount, o.payment_status, o.order_status, o.delivery_status, o.address_id, p.payment_method from orders as o left join payment_methods as p on o.payment_method_id = p.id where o.order_id=?`
 	err1 := o.DB.Raw(query1, uporder.Order_Id).Scan(&orderdetails).Error
 	if err1 != nil {
-		return response.OrderResponse{}, errors.New("Failed to display order details")
+		return response.OrderResponse{}, errors.New("failed to display order details")
 	}
 	return orderdetails, nil
 }
@@ -129,10 +129,10 @@ func (o *OrderDatabase) FindOrder(c context.Context, order domain.Order) error {
 	fmt.Println("hello", order, "error", err)
 	if order.Order_Id == 0 {
 		fmt.Println("Order Not Found")
-		return errors.New("Order Not Found")
+		return errors.New("order Not Found")
 	}
 	if order.Order_Status == status {
-		return errors.New("Order already cancelled")
+		return errors.New("order already cancelled")
 	}
 	return nil
 }
@@ -143,12 +143,12 @@ func (o *OrderDatabase) PlaceOrder(c context.Context, order domain.Order) (respo
 	query := `update orders set total_amount=?,  order_status=?, order_date=? where order_id=?`
 	err := o.DB.Raw(query, order.Total_Amount, order.Order_Status, order.OrderDate, order.Order_Id).Scan(&order).Error
 	if err != nil {
-		return response.PaymentResponse{}, errors.New("Failed to update payment")
+		return response.PaymentResponse{}, errors.New("failed to update payment")
 	}
 	query1 := `select order_id, total_amount, order_status, address_id, payment_method_id, payment_status from orders where order_id=?`
 	err1 := o.DB.Raw(query1, order.Order_Id).Scan(&paymentresp).Error
 	if err1 != nil {
-		return response.PaymentResponse{}, errors.New("Failed to display order details")
+		return response.PaymentResponse{}, errors.New("failed to display order details")
 	}
 	return paymentresp, nil
 }
@@ -340,3 +340,5 @@ func (o *OrderDatabase) GetAllPendingReturnOrder(c context.Context, page request
 
 	return returnRequests, nil
 }
+
+

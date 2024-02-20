@@ -33,6 +33,7 @@ func SuccessResponse(statusCode int, message string, data ...interface{}) Respon
 	}
 }
 
+
 type SalesReport struct {
 	UserID          uint      `json:"user_id"`
 	Name            string    `json:"name"`

@@ -33,15 +33,11 @@ func (p *productDatabase) FindBrand(ctx context.Context, brand request.Category)
 // To add brand
 func (p *productDatabase) AddCategory(ctx context.Context, brand request.Category) (err error) {
 
-	// query := `INSERT INTO categories (category_name) VALUES ($1)`
-	// err = p.DB.Exec(query).Error
 	err = p.DB.Create(&brand).Error
 
-	// query := `INSERT INTO categories (parent_id, category_name)VALUES($1,$2)`
-	// err = p.DB.Exec(query, brand.ParentID, brand.CategoryName).Error
 
 	if err != nil {
-		return errors.New("Failed to save brand")
+		return errors.New("failed to save brand")
 	}
 	return nil
 }
@@ -260,4 +256,38 @@ WHERE
 	fmt.Println("product Id: ", productId)
 
 	return productItems, nil
+}
+
+// sales
+func (pd *productDatabase) SalesData(sDate, eDate time.Time) (response.SalesResponse, error) {
+	var salesData response.SalesResponse
+	query := `SELECT COUNT(*) FROM orders WHERE order_date >=$1 AND order_date <= $2`
+	err := pd.DB.Raw(query, sDate, eDate).Scan(&salesData.TotalOrder).Error
+	if err != nil {
+		return response.SalesResponse{}, errors.New("failed to count total orders")
+	}
+
+	status := "delivered"
+	query1 := `SELECT COUNT(*) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND delivery_status = $3`
+	err1 := pd.DB.Raw(query1, sDate, eDate, status).Scan(&salesData.DeliveredOrder).Error
+	if err1 != nil {
+		return response.SalesResponse{}, errors.New("failed to count delivered orders")
+	}
+
+	status1 := "Pending"
+	query2 := `SELECT COUNT(*) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND delivery_status = $3 AND order_status != 'order cancelled'`
+	err2 := pd.DB.Raw(query2, sDate, eDate, status1).Scan(&salesData.PendingOrder).Error
+	if err2 != nil {
+		return response.SalesResponse{}, errors.New("failed to count pending orders")
+	}
+
+	status2 := "order cancelled"
+	query3 := `SELECT COUNT(*) FROM orders WHERE order_date >= $1 AND order_date <= $2 AND order_status = $3`
+	err3 := pd.DB.Raw(query3, sDate, eDate, status2).Scan(&salesData.CancelledOrder).Error
+	if err3 != nil {
+		return response.SalesResponse{}, errors.New("failed to count cancelled orders")
+	}
+
+	return salesData, nil
+
 }

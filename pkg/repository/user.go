@@ -24,7 +24,7 @@ func NewUserRepository(DB *gorm.DB) repository.UserRepository {
 func (u *userDatabase) FindUser(c context.Context, user domain.User) (domain.User, error) {
 	query := `SELECT * FROM users where id=? OR user_name=? OR email=? OR phone=?`
 	if err := u.DB.Raw(query, user.ID, user.UserName, user.Email, user.Phone).Scan(&user).Error; err != nil {
-		return user, errors.New("Failed to find user")
+		return user, errors.New("failed to find user")
 	}
 	return user, nil
 }
@@ -36,11 +36,11 @@ func (u *userDatabase) SaveUser(c context.Context, user domain.User) (response.U
 			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 	createdAt := time.Now()
 	if u.DB.Exec(query, user.UserName, user.FirstName, user.LastName, user.Age, user.Email, user.Phone, user.Password, createdAt).Error != nil {
-		return response.UserSignUp{}, errors.New("Failed to save user")
+		return response.UserSignUp{}, errors.New("failed to save user")
 	}
 	query2 := `SELECT id, user_name from users where first_name=?`
 	if err := u.DB.Raw(query2, user.FirstName).Scan(&usersignup).Error; err != nil {
-		return response.UserSignUp{}, errors.New("Failed to find user")
+		return response.UserSignUp{}, errors.New("failed to find user")
 	}
 	return usersignup, nil
 }

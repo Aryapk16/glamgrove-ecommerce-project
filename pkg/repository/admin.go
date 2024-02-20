@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"glamgrove/pkg/api/middleware"
 	"glamgrove/pkg/domain"
 	"glamgrove/pkg/repository/interfaces"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -46,12 +48,12 @@ func (a *adminDatabase) BlockUnBlockUser(ctx context.Context, userID uint) error
 	a.DB.Raw(query, userID).Scan(&user)
 	if user.Email == "" {
 		// check user email with user ID
-		return errors.New("Invalid user id user doesn't exist")
+		return errors.New("invalid user id user doesn't exist")
 	}
 
 	query = `UPDATE users SET block_status = $1 WHERE id = $2`
 	if a.DB.Exec(query, !user.BlockStatus, userID).Error != nil {
-		return fmt.Errorf("Failed to update user block_status to %v", !user.BlockStatus)
+		return fmt.Errorf("failed to update user block_status to %v", !user.BlockStatus)
 	}
 	return nil
 }
@@ -86,4 +88,146 @@ func (a *adminDatabase) ApproveReturnOrder(c context.Context, data request.Appro
 	// 	return errors.New("return request denied by admin")
 	// }
 	return nil
+}
+
+//.......................preya
+
+func (a *adminDatabase) DashboardUserDetails(c context.Context) (request.DashboardUser, error) {
+
+	var userDetails request.DashboardUser
+	err := a.DB.Raw("select count(*) from users").Scan(&userDetails.TotalUsers).Error
+	if err != nil {
+		return request.DashboardUser{}, nil
+	}
+
+	err = a.DB.Raw("select count(*) from users where blocked = true").Scan(&userDetails.BlockedUser).Error
+	if err != nil {
+		return request.DashboardUser{}, nil
+	}
+
+	return userDetails, nil
+}
+
+func (a *adminDatabase) DashBoardOrder(c context.Context) (request.DashboardOrder, error) {
+
+	var orderDetails request.DashboardOrder
+	err := a.DB.Raw("select count(*) from orders where payment_status = 'paid' and approval = true ").Scan(&orderDetails.CompletedOrder).Error
+	if err != nil {
+		return request.DashboardOrder{}, nil
+	}
+
+	err = a.DB.Raw("select count(*) from orders where shipment_status = 'pending' or shipment_status = 'processing'").Scan(&orderDetails.PendingOrder).Error
+	if err != nil {
+		return request.DashboardOrder{}, nil
+	}
+
+	err = a.DB.Raw("select count(*) from orders where shipment_status = 'cancelled'").Scan(&orderDetails.CancelledOrder).Error
+	if err != nil {
+		return request.DashboardOrder{}, nil
+	}
+
+	err = a.DB.Raw("select count(*) from orders").Scan(&orderDetails.TotalOrder).Error
+	if err != nil {
+		return request.DashboardOrder{}, nil
+	}
+
+	err = a.DB.Raw("select sum(quantity) from order_items").Scan(&orderDetails.TotalOrderItem).Error
+	if err != nil {
+		return request.DashboardOrder{}, nil
+	}
+	return orderDetails, nil
+}
+func (a *adminDatabase) DashBoardProductDetails(c context.Context) (request.DashBoardProduct, error) {
+
+	var productDetails request.DashBoardProduct
+	err := a.DB.Raw("select count(*) from products").Scan(&productDetails.TotalProducts).Error
+	if err != nil {
+		return request.DashBoardProduct{}, nil
+	}
+
+	err = a.DB.Raw("select count(*) from products where quantity = 0").Scan(&productDetails.OutOfStockProduct).Error
+	if err != nil {
+		return request.DashBoardProduct{}, nil
+	}
+
+	return productDetails, nil
+}
+
+func (a *adminDatabase) TotalRevenue(c context.Context) (request.DashboardRevenue, error) {
+
+	var revenueDetails request.DashboardRevenue
+	startTime := time.Now().AddDate(0, 0, -1)
+	endTime := time.Now()
+	err := a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'paid' and approval = true and created_at >= ? and created_at <= ?", startTime, endTime).Scan(&revenueDetails.TodayRevenue).Error
+	if err != nil {
+		return request.DashboardRevenue{}, nil
+	}
+
+	startTime, endTime = middleware.GetTimeFromPeriod("month")
+	err = a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'paid' and approval = true and created_at >= ? and created_at <= ?", startTime, endTime).Scan(&revenueDetails.MonthRevenue).Error
+	if err != nil {
+		return request.DashboardRevenue{}, nil
+	}
+
+	startTime, endTime = middleware.GetTimeFromPeriod("year")
+	err = a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'paid' and approval = true and created_at >= ? and created_at <= ?", startTime, endTime).Scan(&revenueDetails.YearRevenue).Error
+	if err != nil {
+		return request.DashboardRevenue{}, nil
+	}
+
+	return revenueDetails, nil
+}
+
+func (a *adminDatabase) AmountDetails(c context.Context) (request.DashboardAmount, error) {
+
+	var amountDetails request.DashboardAmount
+	err := a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'paid' and approval = true ").Scan(&amountDetails.CreditedAmount).Error
+	if err != nil {
+		return request.DashboardAmount{}, nil
+	}
+
+	err = a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'not paid' and shipment_status = 'processing' or shipment_status = 'pending' or shipment_status = 'order placed' ").Scan(&amountDetails.PendingAmount).Error
+	if err != nil {
+		return request.DashboardAmount{}, nil
+	}
+
+	return amountDetails, nil
+
+}
+func (a *adminDatabase) FilteredSalesReport(c context.Context, startTime time.Time, endTime time.Time) (request.SalesReport, error) {
+
+	var salesReport request.SalesReport
+
+	result := a.DB.Raw("select coalesce(sum(final_price),0) from orders where payment_status = 'paid' and approval = true and created_at >= ? and created_at <= ?", startTime, endTime).Scan(&salesReport.TotalSales)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	result = a.DB.Raw("select count(*) from orders").Scan(&salesReport.TotalOrders)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	result = a.DB.Raw("select count(*) from orders where payment_status = 'paid' and approval = true and  created_at >= ? and created_at <= ?", startTime, endTime).Scan(&salesReport.CompletedOrders)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	result = a.DB.Raw("select count(*) from orders where shipment_status = 'processing' and approval = false and  created_at >= ? and created_at <= ?", startTime, endTime).Scan(&salesReport.PendingOrders)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	var productID int
+	result = a.DB.Raw("select product_id from order_items group by product_id order by sum(quantity) desc limit 1").Scan(&productID)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	result = a.DB.Raw("select name from products where id = ?", productID).Scan(&salesReport.TrendingProduct)
+	if result.Error != nil {
+		return request.SalesReport{}, result.Error
+	}
+
+	return salesReport, nil
 }

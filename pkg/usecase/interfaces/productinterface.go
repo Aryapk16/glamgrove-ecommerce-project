@@ -6,6 +6,7 @@ import (
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
 	"mime/multipart"
+	"time"
 )
 
 type ProductService interface {
@@ -21,4 +22,7 @@ type ProductService interface {
 	GetProductItem(ctx context.Context, productId uint) (ProductItems []response.ProductItemResp, count int, err error)
 	AddImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductImage, error)
 	AddItemImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductItemImage, error)
+
+
+	SalesData(sDate, Edate time.Time) (response.SalesResponse, error)
 }

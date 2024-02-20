@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"glamgrove/pkg/api/middleware"
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
 	interfaces "glamgrove/pkg/repository/interfaces"
@@ -84,4 +85,51 @@ func (o *adminService) ApproveReturnOrder(c context.Context, data request.Approv
 		return err
 	}
 	return nil
+}
+
+// ....................
+func (o *adminService) DashBoard(c context.Context) (request.CompleteAdminDashboard, error) {
+
+	userDetails, err := o.adminRepository.DashboardUserDetails(c)
+	if err != nil {
+		return request.CompleteAdminDashboard{}, err
+	}
+	orderDetails, err := o.adminRepository.DashBoardOrder(c)
+	if err != nil {
+		return request.CompleteAdminDashboard{}, err
+	}
+
+	productDetails, err := o.adminRepository.DashBoardProductDetails(c)
+	if err != nil {
+		return request.CompleteAdminDashboard{}, err
+	}
+	totalRevenue, err := o.adminRepository.TotalRevenue(c)
+	if err != nil {
+		return request.CompleteAdminDashboard{}, err
+	}
+	amountDetails, err := o.adminRepository.AmountDetails(c)
+	if err != nil {
+		return request.CompleteAdminDashboard{}, err
+	}
+	return request.CompleteAdminDashboard{
+
+		DashboardUser:    userDetails,
+		DashBoardProduct: productDetails,
+		DashboardOrder:   orderDetails,
+		DashboardRevenue: totalRevenue,
+		DashboardAmount:  amountDetails,
+	}, nil
+}
+
+func (a *adminService) FilteredSalesReport(c context.Context, timePeriod string) (request.SalesReport, error) {
+
+	startTime, endTime := middleware.GetTimeFromPeriod(timePeriod)
+
+	salesReport, err := a.adminRepository.FilteredSalesReport(c, startTime, endTime)
+	if err != nil {
+		return request.SalesReport{}, err
+	}
+
+	return salesReport, nil
+
 }

@@ -102,10 +102,10 @@ func (c *couponDatabase) ApplyCoupon(ctx context.Context, data utils.ApplyCoupon
 	// 	return AppliedCoupon, errors.New("Invalid Coupon")
 	// }
 	if couponData.ValidTill.Before(time.Now()) {
-		return AppliedCoupon, errors.New("Coupon Expired")
+		return AppliedCoupon, errors.New("coupon expired")
 	}
 	if data.TotalPrice < couponData.MinOrderValue {
-		return AppliedCoupon, errors.New("Unable to apply coupon. Minimum order value not reached")
+		return AppliedCoupon, errors.New("unable to apply coupon. Minimum order value not reached")
 	}
 	AppliedCoupon.CouponDiscount = data.TotalPrice * couponData.DiscountPercent / 100
 	if AppliedCoupon.CouponDiscount > couponData.DiscountMaxAmount {

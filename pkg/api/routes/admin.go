@@ -67,7 +67,12 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 
 		dashboard := api.Group("/dashboard")
 		{
+			dashboard.GET("/", adminHandler.DashBoard)
+			dashboard.GET("/filteredSalesReport", adminHandler.FilteredSalesReport)
 			dashboard.GET("/salesReport", orderHandler.SalesReport)
+			dashboard.GET("/salesdata", productHandler.Statistics)
+			dashboard.GET("/getallorders", orderHandler.ListAllOrders)
+
 		}
 
 	}

@@ -34,3 +34,7 @@ type UserID struct {
 type Phn struct {
 	Phone string `json:"phone"`
 }
+type Sales struct {
+	Sdate string `json:"Sdate" validate:"required,Sdate"`
+	Edate string `json:"Edate" validate:"required,Edate"`
+}
