@@ -11,7 +11,7 @@ type ServerHTTP struct {
 	engine *gin.Engine
 }
 
-func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.UserHandler, productHandler *handler.ProductHandler, paymentHandler *handler.PaymentHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler) *ServerHTTP {
+func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.UserHandler, productHandler *handler.ProductHandler, paymentHandler *handler.PaymentHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler, imageHandler *handler.ImageHandler) *ServerHTTP {
 
 	engine := gin.New()
 
@@ -19,7 +19,7 @@ func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.User
 	engine.LoadHTMLGlob("views/*.html")
 
 	//Calling routes
-	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, couponHandler, orderHandler, paymentHandler)
+	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, couponHandler, orderHandler, paymentHandler, imageHandler)
 	routes.UserRoutes(engine.Group("/"), userHandler, productHandler, paymentHandler, couponHandler, orderHandler)
 
 	return &ServerHTTP{engine: engine}

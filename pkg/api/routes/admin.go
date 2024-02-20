@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler) {
+func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, productHandler *handler.ProductHandler, couponHandler *handler.CouponHandler, orderHandler *handler.OrderHandler, paymentHandler *handler.PaymentHandler, imageHandler *handler.ImageHandler) {
 	//login
 	login := api.Group("/login")
 	{
@@ -47,6 +47,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 			product.POST("/product-item", productHandler.AddProductItem)
 			product.GET("/product-item/:product_id", productHandler.GetProductItem)
 			product.POST("/additemimage", productHandler.AddItemImage)
+			product.POST("/imageCrop", imageHandler.CropImage)
 
 		}
 
