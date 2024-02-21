@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"glamgrove/pkg/api/middleware"
 	"glamgrove/pkg/config"
 	"glamgrove/pkg/domain"
@@ -91,23 +92,28 @@ func (o *adminService) ApproveReturnOrder(c context.Context, data request.Approv
 func (o *adminService) DashBoard(c context.Context) (request.CompleteAdminDashboard, error) {
 
 	userDetails, err := o.adminRepository.DashboardUserDetails(c)
+	fmt.Println(err, userDetails)
 	if err != nil {
 		return request.CompleteAdminDashboard{}, err
 	}
 	orderDetails, err := o.adminRepository.DashBoardOrder(c)
+	fmt.Println(err, orderDetails)
 	if err != nil {
 		return request.CompleteAdminDashboard{}, err
 	}
 
 	productDetails, err := o.adminRepository.DashBoardProductDetails(c)
+	fmt.Println(err, productDetails)
 	if err != nil {
 		return request.CompleteAdminDashboard{}, err
 	}
 	totalRevenue, err := o.adminRepository.TotalRevenue(c)
+	fmt.Println(err, totalRevenue)
 	if err != nil {
 		return request.CompleteAdminDashboard{}, err
 	}
 	amountDetails, err := o.adminRepository.AmountDetails(c)
+	fmt.Println(err, amountDetails)
 	if err != nil {
 		return request.CompleteAdminDashboard{}, err
 	}

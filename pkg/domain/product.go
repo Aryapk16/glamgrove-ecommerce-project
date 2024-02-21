@@ -3,7 +3,7 @@ package domain
 import "gorm.io/gorm"
 
 type Category struct {
-	ID           uint   `json:"id" gorm:"primaryKey;not null;autoIncrement"`
+	ID           uint   `json:"id" gorm:"primaryKey"`
 	CategoryName string `json:"category_name" gorm:"unique;not null"`
 	//Products     []*Product `json:"-" gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
