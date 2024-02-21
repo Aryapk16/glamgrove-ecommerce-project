@@ -23,10 +23,10 @@ func NewCouponRepository(db *gorm.DB) interfaces.CouponRepository {
 // Create a coupon
 func (c *couponDatabase) CreateNewCoupon(ctx context.Context, CouponData request.CreateCoupon) error {
 
-	query := `INSERT INTO coupons(code,min_order_value,discount_percent,discount_max_amount,valid_till,valid)
-	VALUES($1, $2, $3, $4, $5,$6)`
+	query := `INSERT INTO coupons(code,min_order_value,discount_percent,discount_max_amount,valid_till)
+	VALUES($1, $2, $3, $4, $5)`
 	if err := c.DB.Exec(query, CouponData.Code, CouponData.MinOrderValue,
-		CouponData.DiscountPercent, CouponData.DiscountMaxAmount, CouponData.ValidTill, CouponData.Valid).Error; err != nil {
+		CouponData.DiscountPercent, CouponData.DiscountMaxAmount, CouponData.ValidTill).Error; err != nil {
 		return err
 	}
 

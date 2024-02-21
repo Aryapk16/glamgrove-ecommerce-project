@@ -28,10 +28,10 @@ func NewProductUseCase(ProdRepo interfaces.ProductRepository) service.ProductSer
 
 func (p *productUseCase) AddCategory(ctx context.Context, brand request.Category) error {
 	// check if req brand already exists in db
-	dbBrand, _ := p.ProductRepository.FindBrand(ctx, brand)
-	if dbBrand.ID == 0 {
-		return fmt.Errorf("brand already exist with %s name", brand.CategoryName)
-	}
+	// dbBrand, _ := p.ProductRepository.FindBrand(ctx, brand)
+	// if dbBrand.ID == 0 {
+	// 	return fmt.Errorf("brand already exist with %s name", brand.CategoryName)
+	// }
 	if err := p.ProductRepository.AddCategory(ctx, brand); err != nil {
 		return err
 	}

@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	service "glamgrove/pkg/usecase/interfaces"
 	"image"
+	"path/filepath"
 	"strconv"
 
 	"github.com/disintegration/imaging"
@@ -33,6 +35,7 @@ func (c *ImageHandler) CropImage(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": "Invalid product_image_id"})
 		return
 	}
+	fmt.Println("id", imageID)
 
 	// Crop image
 	imageUrl, err := c.imageService.CropImage(ctx, imageID)
@@ -40,13 +43,20 @@ func (c *ImageHandler) CropImage(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"error": "Failed to crop image", "details": err.Error()})
 		return
 	}
+	fmt.Println("url", imageUrl)
+
+	imageUrl= filepath.Join("/home/arya-pk/Documents/MyProject/GlamGrove/images", imageUrl)
 
 	// Open input image
 	inputImage, err := imaging.Open(imageUrl)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to open image"})
+		// fmt.Println("++++++++++", inputImage)
+		ctx.JSON(500, gin.H{"error": "Failed to open image", "details": err.Error()})
 		return
 	}
+
+	filepath.Join()
+	// fmt.Println("=========", inputImage)
 
 	// Define crop rectangle
 	cropRect := image.Rect(100, 100, 400, 400) // (x0, y0, x1, y1)
@@ -57,7 +67,7 @@ func (c *ImageHandler) CropImage(ctx *gin.Context) {
 	// Save cropped image
 	err = imaging.Save(croppedImage, imageUrl)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": "Failed to save image"})
+		ctx.JSON(500, gin.H{"error": "Failed to save image", "details": err.Error()})
 		return
 	}
 

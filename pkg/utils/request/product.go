@@ -31,7 +31,7 @@ type DeleteProductReq struct {
 }
 
 type Category struct {
-	ID           uint   `json:"id"`
+	// ID           uint   `json:"id"`
 	CategoryName string `json:"category_name"`
 }
 

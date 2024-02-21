@@ -199,6 +199,7 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 			c.JSON(400, response)
 			return
 		}
+		fmt.Println("----------------")
 		orderREsp, err := o.OrderService.UpdateOrderStatus(c, uint(order_id))
 		if err != nil {
 			response := response.ErrorResponse(400, "Failed to place order", err.Error(), "")
