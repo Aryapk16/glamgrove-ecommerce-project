@@ -75,7 +75,7 @@ func GetId(tokenString string) (uint, error) {
 	return uint(userID), nil
 }
 
-// ...........................p
+// ...........................
 func GetTimeFromPeriod(timePeriod string) (time.Time, time.Time) {
 
 	endDate := time.Now()

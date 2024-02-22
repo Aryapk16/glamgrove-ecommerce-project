@@ -42,9 +42,7 @@ type DashBoardProduct struct {
 type DashboardOrder struct {
 	CompletedOrder int
 	PendingOrder   int
-	CancelledOrder int
 	TotalOrder     int
-	TotalOrderItem int
 }
 type DashboardRevenue struct {
 	TodayRevenue float64

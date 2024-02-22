@@ -173,7 +173,7 @@ func (a *AdminHandler) DashBoard(c *gin.Context) {
 	c.JSON(http.StatusOK, sucessRes)
 }
 
-// .............p
+// .............
 
 func (a *AdminHandler) FilteredSalesReport(c *gin.Context) {
 
