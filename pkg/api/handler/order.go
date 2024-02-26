@@ -157,11 +157,26 @@ func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 	var placeorder request.PlaceOrderRequest
 	var order domain.Order
 	order_id, _ := strconv.Atoi(c.Query("order_id"))
-	//coupon_id, _ := strconv.Atoi(c.Query("coupon_id"))
-	//placeorder.CouponId = coupon_id
+	coupon_id, _ := strconv.Atoi(c.Query("coupon_id"))
+	placeorder.CouponId = coupon_id
 	placeorder.OrderId = order_id
 	order.Order_Id = uint(order_id)
+	order.Applied_Coupon_id = uint(coupon_id)
 	order.OrderDate = time.Now()
+	couponResp, err := o.OrderService.ValidateCoupon(c, order.Applied_Coupon_id)
+	if err != nil {
+		response := response.ErrorResponse(400, "Invalid coupon", err.Error())
+		c.JSON(400, response)
+		return
+	} else {
+		totalamnt, err := o.OrderService.ApplyDiscount(c, couponResp, uint(order_id))
+		if err != nil {
+			response := response.ErrorResponse(400, "Add more quantity", err.Error(), "try again")
+			c.JSON(400, response)
+			return
+		}
+		order.Total_Amount = float64(totalamnt)
+	}
 	paymentResp, err := o.OrderService.PlaceOrder(c, order)
 	if err != nil {
 		response := response.ErrorResponse(400, "failed to place order", err.Error(), "")
@@ -200,14 +215,14 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 			return
 		}
 		fmt.Println("----------------")
-		orderREsp, err := o.OrderService.UpdateOrderStatus(c, uint(order_id))
+		orderResp, err := o.OrderService.UpdateOrderStatus(c, uint(order_id))
 		if err != nil {
 			response := response.ErrorResponse(400, "Failed to place order", err.Error(), "")
 			c.JSON(400, response)
 			return
 		}
 
-		response := response.SuccessResponse(200, "Successfully  confirmed order", orderREsp)
+		response := response.SuccessResponse(200, "Successfully  confirmed order", orderResp)
 		c.JSON(200, response)
 		return
 	} else {

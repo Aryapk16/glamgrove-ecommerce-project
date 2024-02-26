@@ -20,6 +20,9 @@ type OrderService interface {
 
 	FindPaymentMethodIdByOrderId(c context.Context, order_id uint) (uint, error)
 	FindPhoneEmailByUserId(c context.Context, usr_id int) (response.PhoneEmailResp, error)
+	//coupon
+	ValidateCoupon(c context.Context, CouponId uint) (response.CouponResponse, error)
+	ApplyDiscount(c context.Context, CouponResponse response.CouponResponse, order_id uint) (int, error)
 
 	GetRazorpayOrder(c context.Context, userID uint, razorPay request.RazorPayReq) (response.ResRazorpayOrder, error)
 	UpdateStatusRazorpay(c context.Context, order_id uint) (response.OrderResponse, error)

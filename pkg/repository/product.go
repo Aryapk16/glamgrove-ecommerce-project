@@ -24,7 +24,7 @@ func NewProductRepository(db *gorm.DB) interfaces.ProductRepository {
 
 func (p *productDatabase) FindBrand(ctx context.Context, brand request.Category) (request.Category, error) {
 	query := `SELECT * FROM categories category_name=?`
-	if p.DB.Raw(query,brand.CategoryName).Scan(&brand).Error != nil {
+	if p.DB.Raw(query, brand.CategoryName).Scan(&brand).Error != nil {
 		return request.Category{}, errors.New("failed to get brand")
 	}
 	return brand, nil
@@ -34,7 +34,6 @@ func (p *productDatabase) FindBrand(ctx context.Context, brand request.Category)
 func (p *productDatabase) AddCategory(ctx context.Context, brand request.Category) (err error) {
 
 	err = p.DB.Create(&brand).Error
-
 
 	if err != nil {
 		return errors.New("failed to save brand")

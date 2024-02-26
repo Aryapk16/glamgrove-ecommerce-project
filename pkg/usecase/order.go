@@ -102,6 +102,29 @@ func (o *OrderUseCase) PlaceOrder(c context.Context, order domain.Order) (respon
 	return paymentresp, nil
 }
 
+// coupon validation
+func (o *OrderUseCase) ValidateCoupon(c context.Context, CouponId uint) (response.CouponResponse, error) {
+	err := o.OrderRepository.FindCouponById(c, CouponId)
+	if err != nil {
+		return response.CouponResponse{}, err
+	}
+	couponResp, err := o.OrderRepository.ValidateCoupon(c, CouponId)
+	if err != nil {
+		return response.CouponResponse{}, err
+	}
+
+	return couponResp, nil
+}
+func (o *OrderUseCase) ApplyDiscount(c context.Context, CouponResponse response.CouponResponse, order_id uint) (int, error) {
+	order, err := o.OrderRepository.ApplyDiscount(c, order_id)
+	if err != nil {
+		return 0, nil
+	}
+	totalamnt := order.Total_Amount - (order.Total_Amount * (CouponResponse.DiscountPercent / 100))
+	return int(totalamnt), nil
+
+}
+
 func (o *OrderUseCase) FindPaymentMethodIdByOrderId(c context.Context, order_id uint) (uint, error) {
 	method_id, err := o.OrderRepository.FindPaymentMethodIdByOrderId(c, order_id)
 	if err != nil {

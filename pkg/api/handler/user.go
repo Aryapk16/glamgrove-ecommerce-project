@@ -24,28 +24,6 @@ func NewUserHandler(userUsecase interfaces.UserService) *UserHandler {
 	return &UserHandler{userService: userUsecase}
 }
 
-// func (u *UserHandler) UserSignup(c *gin.Context) {
-// 	var body request.SignupUserData
-// 	if err := c.ShouldBindJSON(&body); err != nil {
-// 		response := response.ErrorResponse(400, "Missing or invalid entry", err.Error(), body)
-// 		c.JSON(http.StatusBadRequest, response)
-// 		return
-// 	}
-// 	var user domain.User
-// 	if err := copier.Copy(&user, body); err != nil {
-// 		fmt.Println("Copy failed")
-// 	}
-
-// 	usr, err := u.userService.SignUp(c, user)
-// 	if err != nil {
-// 		response := response.ErrorResponse(400, "User already exist", err.Error(), body)
-// 		c.JSON(http.StatusBadRequest, response)
-// 		return
-// 	}
-// 	response := response.SuccessResponse(200, "Account created successfuly", usr)
-// 	c.JSON(http.StatusOK, response)
-// }
-
 func (u *UserHandler) LoginSubmit(c *gin.Context) {
 	var body request.LoginData
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -114,6 +92,18 @@ func (u *UserHandler) UserOTPVerify(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// UserSignup registers a new user.
+//
+// @Summary Register a new user
+// @Description Registers a new user by validating input data, checking if the user already exists, sending an OTP via Twilio, generating an authentication token, and setting a signup cookie.
+// @Tags User Profile Management
+// @Accept json
+// @Produce json
+// @Param request body domain.User true "User details for registration"
+// @Success 200 {object} domain.User "Successfully registered user"
+// @Failure 400 {object} ErrorResponse "Invalid input" "Error while finding user" "User already exist"
+// @Failure 500 {object} ErrorResponse "Failed to send otp" "Unable to signup"
+// @Router /signup [post]
 func (u *UserHandler) UserSignup(ctxt *gin.Context) {
 
 	var signup domain.User

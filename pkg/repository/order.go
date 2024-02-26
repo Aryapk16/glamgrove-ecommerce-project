@@ -56,6 +56,38 @@ func (o *OrderDatabase) FindPaymentMethodById(c context.Context, method_id uint)
 	return payment_methods.ID, nil
 }
 
+// coupon validation
+func (o *OrderDatabase) ValidateCoupon(c context.Context, CouponId uint) (response.CouponResponse, error) {
+	var couponResp response.CouponResponse
+	query := `select discount_percent,valid_till from coupons where id=?`
+	err := o.DB.Raw(query, CouponId).Scan(&couponResp).Error
+	if err != nil {
+		return response.CouponResponse{}, errors.New("not a valid coupon")
+	}
+	return couponResp, nil
+}
+
+func (o *OrderDatabase) FindCouponById(c context.Context, couponId uint) error {
+	var coupon domain.Coupon
+	err := o.DB.Where("id=?", couponId).First(&coupon).Error
+	if err != nil {
+		return errors.New("coupon already used")
+	}
+	return nil
+}
+
+//apply discount
+
+func (o *OrderDatabase) ApplyDiscount(c context.Context, order_id uint) (domain.Order, error) {
+	var order domain.Order
+	query := `select *from orders where order_id=?`
+	err := o.DB.Raw(query, order_id).Scan(&order).Error
+	if err != nil {
+		return domain.Order{}, errors.New("failed to find order by order_id")
+	}
+	return order, nil
+}
+
 // Update order details
 func (o *OrderDatabase) UpdateOrderDetails(c context.Context, uporder request.UpdateOrder) (response.OrderResponse, error) {
 	var order domain.Order
@@ -140,10 +172,15 @@ func (o *OrderDatabase) FindOrder(c context.Context, order domain.Order) error {
 // Place order- Apply coupon
 func (o *OrderDatabase) PlaceOrder(c context.Context, order domain.Order) (response.PaymentResponse, error) {
 	var paymentresp response.PaymentResponse
-	query := `update orders set total_amount=?,  order_status=?, order_date=? where order_id=?`
-	err := o.DB.Raw(query, order.Total_Amount, order.Order_Status, order.OrderDate, order.Order_Id).Scan(&order).Error
+	var coupon domain.Coupon
+	query := `update orders set total_amount=?,applied_coupon_id=?,  order_status=?, order_date=? where order_id=?`
+	err := o.DB.Raw(query, order.Total_Amount, order.Applied_Coupon_id, order.Order_Status, order.OrderDate, order.Order_Id).Scan(&order).Error
 	if err != nil {
 		return response.PaymentResponse{}, errors.New("failed to update payment")
+	}
+	err2 := o.DB.Where("id=?", order.Applied_Coupon_id).Delete(&coupon).Error
+	if err2 != nil {
+		return response.PaymentResponse{}, errors.New("error while deleting used coupon")
 	}
 	query1 := `select order_id, total_amount, order_status, address_id, payment_method_id, payment_status from orders where order_id=?`
 	err1 := o.DB.Raw(query1, order.Order_Id).Scan(&paymentresp).Error
@@ -340,5 +377,3 @@ func (o *OrderDatabase) GetAllPendingReturnOrder(c context.Context, page request
 
 	return returnRequests, nil
 }
-
-

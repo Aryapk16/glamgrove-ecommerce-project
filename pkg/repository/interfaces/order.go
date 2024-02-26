@@ -16,10 +16,16 @@ type OrderRepository interface {
 
 	FindPaymentMethodById(c context.Context, method_id uint) (uint, error)
 	FindPaymentMethodIdByOrderId(c context.Context, order_id uint) (uint, error)
+	//coupon
+	FindCouponById(c context.Context, couponId uint) error
+
 	GetTotalAmount(c context.Context, userid int) ([]domain.Cart, error)
 
 	FindOrder(c context.Context, order domain.Order) error
 	PlaceOrder(c context.Context, order domain.Order) (response.PaymentResponse, error)
+	ValidateCoupon(c context.Context, CouponId uint) (response.CouponResponse, error)
+	ApplyDiscount(c context.Context, order_id uint) (domain.Order, error)
+
 	UpdateOrderStatus(c context.Context, order_id uint, order_status string) (response.OrderResponse, error)
 
 	FindTotalAmountByOrderId(c context.Context, order_id uint) (float64, error)
