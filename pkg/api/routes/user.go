@@ -29,7 +29,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 
 	// Middleware
 	api.Use(middleware.AuthenticateUser)
-	{
+	{		
 
 		products := api.Group("/products")
 		{

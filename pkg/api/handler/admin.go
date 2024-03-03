@@ -25,6 +25,20 @@ func NewAdminHandler(adminService interfaces.AdminService, orderservice interfac
 		orderService: orderservice,
 	}
 }
+
+// AdminLogin godoc
+// @Summary Admin login
+// @Description Login to Admin account
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param input body request.AdminLogin true "inputs"
+// @Failure        400	{object}	response.Response{}		"Missing or Invalid entry"
+//	@Failure	   400	{object}	response.Response{}		"Failed to login"
+//  @Failure	   500 {object}	response.Response{}		"Generate JWT failure"
+// @Success 200 {object} response.SuccessResponse "Successfully logged in"
+// @Router /admin/login [post]
+
 func (a *AdminHandler) AdminLogin(c *gin.Context) {
 	//Bind login data
 	var body request.AdminLogin
@@ -51,6 +65,18 @@ func (a *AdminHandler) AdminLogin(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// ListUsers godoc
+// @Summary Get a list of users
+// @Description Get a paginated list of users.
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param  count query int false "Number of users to fetch per page"
+// @Param  page_number query int false "Page number"
+// @Success  200 {object}	response.Response{} "List user successful"
+// @Failure  400 {object} response.Response{} "Missing or invalid inputs"
+// @Failure  500 {object} response.Response{} "Failed to get all users"
+// @Router /admin/users/ [get]
 func (a *AdminHandler) ListUsers(c *gin.Context) {
 
 	count, err1 := utils.StringToUint(c.Query("count"))
@@ -90,6 +116,20 @@ func (a *AdminHandler) ListUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+// BlockUnBlockUser godoc
+// @Summary Block or unblock user
+// @Description Blocks or unblocks in admin side
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param input body request.Block true "inputs"
+// @Success         200 {object}    response.Response{}  "Successfully changed user block_status"
+//
+//	@Failure		400	{object}	response.Response{}		"Invalid inputs"
+//	@Failure		400	{object}	response.Response{}		"Failed to change user block_status"
+//
+// @Router /admin/users/block [post]
 func (a *AdminHandler) BlockUnBlockUser(ctx *gin.Context) {
 	var body request.Block
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -161,6 +201,15 @@ func (a *AdminHandler) ApproveReturnOrder(c *gin.Context) {
 }
 
 // ...............................dashboard
+// DashBoard godoc
+// @Summary Get dashboard details
+// @Description  Get details for the dashboard
+// @Tags Admin Dashboard
+// @Accept json
+// @Produce json
+// @Success 200 {object}  response.Response{} "succesfully recevied all records"
+// @Failure 400	{object}	response.Response{}		"error in getting dashboard details"
+// @Router /admin/dashboard/ [get]
 func (a *AdminHandler) DashBoard(c *gin.Context) {
 	dashBoard, err := a.adminUseCase.DashBoard(c)
 	if err != nil {
@@ -174,7 +223,16 @@ func (a *AdminHandler) DashBoard(c *gin.Context) {
 }
 
 // .............
-
+// FilteredSalesReport godoc
+// @Summary Get filtered sales report
+// @Description Get  sales report for a specific time period
+// @Tags Admin
+// @Accept json
+// @Produce json
+// @Param period path string true "Time period for the sales report"
+// @Success 200 {object} response.Response{}  "Sales report retrieved successfully"
+// @Failure 500 {object} response.Response{}  "Sales report could not be retrieved"
+// @Router /admin/sales-report/{period} [get]
 func (a *AdminHandler) FilteredSalesReport(c *gin.Context) {
 
 	timePeriod := c.Param("period")

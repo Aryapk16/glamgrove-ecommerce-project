@@ -1,0 +1,536 @@
+definitions:
+  domain.User:
+    type: object
+  request.Address:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      house:
+        type: string
+      is_default:
+        type: boolean
+      pin_code:
+        type: string
+      state:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  request.AddressPatch:
+    properties:
+      address_id:
+        type: integer
+      city:
+        type: string
+      country:
+        type: string
+      house:
+        type: string
+      is_default:
+        type: boolean
+      pin_code:
+        type: string
+      state:
+        type: string
+    type: object
+  request.Block:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
+  request.LoginData:
+    properties:
+      Password:
+        maxLength: 30
+        minLength: 3
+        type: string
+      email:
+        description: |-
+          UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
+          Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
+        type: string
+    required:
+    - Password
+    type: object
+  request.OTPVerify:
+    properties:
+      otp:
+        maxLength: 8
+        minLength: 4
+        type: string
+      phone_number:
+        type: string
+    required:
+    - otp
+    - phone_number
+    type: object
+  request.UpdateCartReq:
+    properties:
+      product_id:
+        type: integer
+      product_item_id:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - product_id
+    - product_item_id
+    - quantity
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      status_code:
+        type: integer
+    type: object
+info:
+  contact:
+    name: API Support
+  description: Glamgrove is an E-commerce platform for purchasing high quality beauty
+    products
+  title: Go + Gin E-Commerce API Glamgrove
+  version: 1.0.0
+paths:
+  /admin/dashboard/:
+    get:
+      consumes:
+      - application/json
+      description: Get details for the dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: succesfully recevied all records
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: error in getting dashboard details
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get dashboard details
+      tags:
+      - Admin Dashboard
+  /admin/sales-report/{period}:
+    get:
+      consumes:
+      - application/json
+      description: Get  sales report for a specific time period
+      parameters:
+      - description: Time period for the sales report
+        in: path
+        name: period
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sales report retrieved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Sales report could not be retrieved
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get filtered sales report
+      tags:
+      - Admin
+  /admin/users/:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of users.
+      parameters:
+      - description: Number of users to fetch per page
+        in: query
+        name: count
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List user successful
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get all users
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get a list of users
+      tags:
+      - Users
+  /admin/users/block:
+    post:
+      consumes:
+      - application/json
+      description: Blocks or unblocks in admin side
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Block'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully changed user block_status
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Failed to change user block_status
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Block or unblock user
+      tags:
+      - Admin
+  /cart/get:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve cart items of the user from the database
+      parameters:
+      - description: ' token'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Number of items to retrieve
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number for pagination
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get Cart Items successful
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get user's cart items
+      tags:
+      - User
+  /cart/update:
+    put:
+      consumes:
+      - application/json
+      description: Update cart items of the user in the database
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Cart update details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfuly updated cart
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update user's cart
+      tags:
+      - User
+  /login/LoginSubmit:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user login by validating input data, checking for
+        missing or invalid entries, and setting up JWT for authentication.
+      parameters:
+      - description: User login details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid entry" "Field should not be empty" "Failed
+            to login
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Generate JWT failure
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Handle user login
+      tags:
+      - User Profile Management
+  /profile/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user profile details from the database
+      parameters:
+      - description: token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfuly got profile
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get user profile
+      tags:
+      - User
+  /profile/add-address:
+    post:
+      consumes:
+      - application/json
+      description: Add the address of user
+      parameters:
+      - description: JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address saved successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or Invalid entry
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add user address
+      tags:
+      - User
+  /profile/delete-address/:adressId:
+    delete:
+      consumes:
+      - application/json
+      description: Delete the addresss of user
+      parameters:
+      - description: JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address deleted successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or Invalid entry
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete user addresss
+      tags:
+      - User
+  /profile/edit-address:
+    put:
+      consumes:
+      - application/json
+      description: update the address of user
+      parameters:
+      - description: JWT token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddressPatch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address updated successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or Invalid entry
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: update address
+      tags:
+      - User
+  /profile/get-address:
+    get:
+      consumes:
+      - application/json
+      description: Get all the addresss of user
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get all addresses successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: User not detected
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all user address
+      tags:
+      - User
+  /signup/:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user by validating input data, checking if the
+        user already exists, sending an OTP via Twilio, generating an authentication
+        token, and setting a signup cookie.
+      parameters:
+      - description: User details for registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully registered user
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Invalid input" "Error while finding user" "User already exist
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to send otp" "Unable to signup
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Register a new user
+      tags:
+      - User Profile Management
+  /signup/otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: OTP Verification to user account
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.OTPVerify'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or Invalid entry
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to login
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: User OTP Verification
+      tags:
+      - User
+securityDefinitions:
+  BearerTokenAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
