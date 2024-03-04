@@ -24,6 +24,17 @@ func NewProductHandler(ProductUseCase service.ProductService) *ProductHandler {
 	}
 }
 
+// AddCategory godoc
+// @Summary Add a new category
+// @Description Adds a new category to the database.
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Param body body request.Category true "Category object to add"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Success message"
+// @Failure 400 {object} response.Response{} "Missing or invalid entry or failed to add category"
+// @Router  /admin/brands/add  [post]
 func (p *ProductHandler) AddCategory(c *gin.Context) {
 	var ProductBrand request.Category
 	if err := c.ShouldBindJSON(&ProductBrand); err != nil {
@@ -40,6 +51,18 @@ func (p *ProductHandler) AddCategory(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfuly added a new category in database", ProductBrand)
 	c.JSON(200, response)
 }
+
+// GetAllCategory godoc
+// @Summary Get all categories
+// @Description Retrieves all categories from the database.
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Success message with all categories"
+// @Failure 500 {object} response.Response{} "Failed to get categories"
+// @Router /admin/brands/get  [get]
+// @Router /products/brands  [get]
 func (p *ProductHandler) GetAllCategory(c *gin.Context) {
 	allcategories, err := p.ProductService.GetAllBrands(c)
 	if err != nil {
@@ -51,6 +74,18 @@ func (p *ProductHandler) GetAllCategory(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfuly listed all category", allcategories)
 	c.JSON(200, response)
 }
+
+// AddProduct godoc
+// @Summary Add a new product
+// @Description Adds a new product to the database.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param body body request.ProductReq true "Product details"
+// @Success 200 {object} response.Response{} "Success message with product details"
+// @Failure 400 {object} response.Response{} "Failed to add product"
+// @Router /admin/brands/add  [post]
 func (p *ProductHandler) AddProduct(c *gin.Context) {
 	var body request.ProductReq
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -69,7 +104,19 @@ func (p *ProductHandler) AddProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// Add image
+// AddImage godoc
+// @Summary Add image to a product
+// @Description Adds image(s) to a product.
+// @Tags Products
+// @Accept multipart/form-data
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_id formData int true "Product ID"
+// @Param image formData file true "Image file(s)"
+// @Success 200 {object} response.Response{} "Success message with added images"
+// @Failure 400 {object} response.Response{} "Error message with details"
+// @Router  /admin/products/addimage [post]
+
 func (p *ProductHandler) AddImage(c *gin.Context) {
 	pid, err := strconv.Atoi(c.PostForm("product_id"))
 	if err != nil {
@@ -100,6 +147,18 @@ func (p *ProductHandler) AddImage(c *gin.Context) {
 
 }
 
+// AddItemImage godoc
+// @Summary Add image to a product item
+// @Description Adds image(s) to a specific product item.
+// @Tags Products
+// @Accept multipart/form-data
+// @Produce json
+// @Security ApiKeyAuth
+// @Param product_item_id formData int true "Product Item ID"
+// @Param image formData file true "Image file(s)"
+// @Success 200 {object} response.Response{} "Success message with added images"
+// @Failure 400 {object} response.Response{} "Error message with details"
+// @Router  /admin/products/additemimage [post]
 func (p *ProductHandler) AddItemImage(c *gin.Context) {
 	pid, err := strconv.Atoi(c.PostForm("product_item_id"))
 	if err != nil {
@@ -130,6 +189,20 @@ func (p *ProductHandler) AddItemImage(c *gin.Context) {
 
 }
 
+// ListProducts godoc
+// @Summary List products
+// @Description Retrieves a list of products with pagination support.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param count query int false "Number of products to retrieve per page"
+// @Param page_number query int false "Page number"
+// @Success 200 {object} response.Response{} "Successful response"
+// @Success 200 {object} response.Response{} "No products to show"
+// @Failure 400 {object} response.Response{} "Invalid inputs"
+// @Failure 500 {object} response.Response{} "Failed to get all products"
+// @Router /products/   [get]
+// @Router  /admin/products/list [get]
 func (p *ProductHandler) ListProducts(c *gin.Context) {
 	count, err1 := utils.StringToUint(c.Query("count"))
 	if err1 != nil {
@@ -161,6 +234,19 @@ func (p *ProductHandler) ListProducts(c *gin.Context) {
 	respones := response.SuccessResponse(200, "Product listed successfuly", products)
 	c.JSON(http.StatusOK, respones)
 }
+
+// UpdateProduct godoc
+// @Summary Update a product
+// @Description Updates an existing product with the provided details.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID to update"
+// @Param body body request.UpdateProductReq true "Product details to update"
+// @Success 200 {object} response.Response{} "Product updated successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid input"
+// @Failure 400 {object} response.Response{} "Failed to update product"
+// @Router   /admin/products/update [put]
 func (p *ProductHandler) UpdateProduct(c *gin.Context) {
 	var body request.UpdateProductReq
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -180,6 +266,18 @@ func (p *ProductHandler) UpdateProduct(c *gin.Context) {
 	c.JSON(200, response)
 	c.Abort()
 }
+
+// DeleteProduct godoc
+// @Summary Delete a product
+// @Description Deletes the product with the specified ID.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID to delete"
+// @Success 200 {object} response.Response{} "Product deleted successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid input"
+// @Failure 500 {object} response.Response{} "Failed to delete product"
+// @Router  /admin/products/delete [delete]
 func (p *ProductHandler) DeleteProduct(c *gin.Context) {
 	var body request.DeleteProductReq
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -198,6 +296,18 @@ func (p *ProductHandler) DeleteProduct(c *gin.Context) {
 	response := response.SuccessResponse(http.StatusOK, "Successfuly deleted product", deletedProduct)
 	c.JSON(200, response)
 }
+
+// AddProductItem godoc
+// @Summary Add a product item
+// @Description Adds a new product item.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param body body request.ProductItemReq true "Product item details"
+// @Success 200 {object} response.Response{} "Product item added successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid input"
+// @Failure 500 {object} response.Response{} "Failed to add product item"
+// @Router /admin/products/product-item [post]
 func (p *ProductHandler) AddProductItem(c *gin.Context) {
 	var body request.ProductItemReq
 
@@ -217,6 +327,18 @@ func (p *ProductHandler) AddProductItem(c *gin.Context) {
 	c.JSON(200, response)
 	c.Abort()
 }
+
+// GetProductItem godoc
+// @Summary Get product items by product ID
+// @Description Retrieves product items based on the provided product ID.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param product_id query uint true "Product ID"
+// @Success 200 {object} response.Response{} "Product items fetched successfully"
+// @Failure 400 {object} response.Response{} "Invalid param input" or "No product items for this product ID"
+// @Failure 500 {object} response.Response{} "Failed to get product item for given product ID"
+// @Router  /admin/products/product-item/:product_id [get]
 func (p *ProductHandler) GetProductItem(c *gin.Context) {
 	productID, err := utils.StringToUint(c.Query("product_id"))
 	if err != nil {

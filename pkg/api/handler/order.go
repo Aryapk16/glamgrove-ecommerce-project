@@ -25,6 +25,18 @@ func NewOrderHandler(orderUseCase service.OrderService) *OrderHandler {
 		OrderService: orderUseCase,
 	}
 }
+
+// CreateOrder godoc
+// @Summary Create an order
+// @Description Creates an order with the provided parameters
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param address_id query integer true "ID of the address associated with the order"
+// @Param paymentmethod_id query integer true "ID of the payment method used for the order"
+// @Success 200 {object} response.Response{} "Successfully created order. Please complete payment"
+// @Failure 400 {object} response.Response{} "Failed to get address id" or "Failed to get payment method id" or "Failed to get total amount" or "Failed to create order"
+// @Router /order/createOrder  [post]
 func (o *OrderHandler) CreateOrder(c *gin.Context) {
 	var order domain.Order
 
@@ -65,6 +77,17 @@ func (o *OrderHandler) CreateOrder(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfully created order. Please complete payment", orderResp)
 	c.JSON(200, response)
 }
+
+// UpdateOrder godoc
+// @Summary Update an order
+// @Description Updates details of an existing order
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param body body request.UpdateOrder true "Order details to update"
+// @Success 200 {object} response.Response{} "Successfully updated order"
+// @Failure 400 {object} response.Response{} "Error while getting data from users" or "Error while updating data"
+// @Router  /order/updateOrder [put]
 func (o *OrderHandler) UpdateOrder(c *gin.Context) {
 	var UpdateOrderDetails request.UpdateOrder
 	if err := c.ShouldBindJSON(&UpdateOrderDetails); err != nil {
@@ -81,6 +104,19 @@ func (o *OrderHandler) UpdateOrder(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfully updated order", uporder)
 	c.JSON(200, response)
 }
+
+// GetAllOrders godoc
+// @Summary Get all orders
+// @Description Retrieves a list of all orders with pagination
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param count query integer true "Number of orders per page"
+// @Param page_number query integer true "Page number"
+// @Success 200 {object} response.Response{} "Get Orders successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid inputs"
+// @Failure 500 {object} response.Response{} "Something went wrong!"
+// @Router /admin/order/listOrder [get]
 func (o *OrderHandler) GetAllOrders(c *gin.Context) {
 	var page request.ReqPagination
 	count, err0 := utils.StringToUint(c.Query("count"))
@@ -109,6 +145,20 @@ func (o *OrderHandler) GetAllOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// ListAllOrders godoc
+// @Summary List all orders for a user
+// @Description Retrieves a list of all orders for the authenticated user with pagination
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param count query integer true "Number of orders per page"
+// @Param page_number query integer true "Page number"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Get Orders successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid inputs"
+// @Failure 401 {object} response.Response{} "Unauthorized"
+// @Failure 500 {object} response.Response{} "Something went wrong!"
+// @Router /order/listOrder [get]
 func (o *OrderHandler) ListAllOrders(c *gin.Context) {
 	var page request.ReqPagination
 	count, err0 := utils.StringToUint(c.Query("count"))
@@ -136,6 +186,17 @@ func (o *OrderHandler) ListAllOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// CancelOrder godoc
+// @Summary Cancel an order
+// @Description Cancels an order with the specified order_id
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param order_id query integer true "ID of the order to be canceled"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Successfully deleted order"
+// @Failure 400 {object} response.Response{} "Please add id as params" or "Can't delete order"
+// @Router  /order/cancelOrder  [delete]
 func (o *OrderHandler) CancelOrder(c *gin.Context) {
 	order_id, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
@@ -153,6 +214,18 @@ func (o *OrderHandler) CancelOrder(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// PlaceOrder godoc
+// @Summary Place an order
+// @Description Places an order with the specified order_id and coupon_id
+// @Tags Orders
+// @Accept json
+// @Produce json
+// @Param order_id query integer true "ID of the order to be placed"
+// @Param coupon_id query integer false "ID of the coupon to be applied"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Successfully placed order"
+// @Failure 400 {object} response.Response{} "Invalid coupon" or "Add more quantity" or "Failed to place order"
+// @Router /order/placeOrder [post]
 func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 	var placeorder request.PlaceOrderRequest
 	var order domain.Order
@@ -221,7 +294,7 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 			c.JSON(400, response)
 			return
 		}
-
+		fmt.Println(err)
 		response := response.SuccessResponse(200, "Successfully  confirmed order", orderResp)
 		c.JSON(200, response)
 		return
@@ -262,6 +335,18 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 
 }
 
+// ReturnOrder godoc
+// @Summary Request to return an order
+// @Description Requests to return an order with the specified order ID, along with return reason (optional).
+// @Tags Returns
+// @Accept json
+// @Produce json
+// @Param orderId query integer true "ID of the order to be returned"
+// @Param Damage query string false "Reason for return (optional)"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Successfully requested to return products"
+// @Failure 400 {object} response.Response{} "Please add order id as params" or "Error while getting id from cookie" or "Invalid order_id" or "Failed to find refund amount" or "Failed to return order"
+// @Router /return/product [post]
 func (o *OrderHandler) ReturnOrder(c *gin.Context) {
 	var returnOrder domain.OrderReturn
 	order_id, err := strconv.Atoi(c.Query("orderId"))
@@ -307,7 +392,22 @@ func (o *OrderHandler) ReturnOrder(c *gin.Context) {
 
 }
 
-// sales report
+// SalesReport godoc
+// @Summary Generate sales report in PDF format
+// @Description Generates a sales report based on the provided start and end dates,
+// returning the report as a downloadable PDF file.
+// @Tags Reports
+// @Accept json
+// @Produce json
+// @Param count query integer true "Number of items per page"
+// @Param page_number query integer true "Page number"
+// @Param startDate query string true "Start date of the sales report (YYYY-MM-DD)"
+// @Param endDate query string true "End date of the sales report (YYYY-MM-DD)"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{} "Successfully generated pdf"
+// @Failure 400 {object} response.Response{} "Please add start date as params" or "Please add end date as params" or "There is no sales report on this period"
+// @Failure 500 {object} response.Response{} "Failed to generate PDF"
+// @Router /admin/dashboard/salesReport [get]
 func (o *OrderHandler) SalesReport(c *gin.Context) {
 	count, err1 := utils.StringToUint(c.Query("count"))
 	if err1 != nil {
@@ -412,53 +512,3 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 	response := response.SuccessResponse(200, "Successfully generated pdf", " ")
 	c.JSON(200, response)
 }
-
-//printvoice
-
-// func (O *OrderHandler) PrintInvoice(c *gin.Context) {
-// 	orderId := c.Query("order_id")
-// 	orderIdInt, err := strconv.Atoi(orderId)
-// 	if err != nil {
-// 		//err = errors.New("error in coverting order id" + err.Error())
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in reading the order id", err.Error())
-// 		c.JSON(http.StatusBadRequest, errRes)
-// 		return
-// 	}
-// 	pdf, err := O.OrderService.PrintInvoice(orderIdInt)
-// 	fmt.Println("error ", err)
-// 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing the invoice", err.Error())
-// 		c.JSON(http.StatusBadRequest, errRes)
-// 		return
-// 	}
-
-// 	c.Header("Content-Disposition", "attachment;filename=invoice.pdf")
-
-// 	pdfFilePath := "salesReport/invoice.pdf"
-
-// 	err = pdf.OutputFileAndClose(pdfFilePath)
-// 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing invoice", err.Error())
-// 		c.JSON(http.StatusBadRequest, errRes)
-// 		return
-// 	}
-
-// 	c.Header("Content-Disposition", "attachment; filename=sales_report.pdf")
-// 	c.Header("Content-Type", "application/pdf")
-
-// 	c.File(pdfFilePath)
-
-// 	c.Header("Content-Type", "application/pdf")
-
-// 	err = pdf.Output(c.Writer)
-// 	if err != nil {
-// 		errRes := response.ErrorResponse(http.StatusBadGateway, "error in printing invoice", err.Error())
-// 		c.JSON(http.StatusBadRequest, errRes)
-// 		return
-// 	}
-
-// 	successRes := response.SuccessResponse(http.StatusOK, "the request was succesful", pdf)
-// 	c.JSON(http.StatusOK, successRes)
-// }
-
-// /................................................

@@ -1,4 +1,11 @@
 definitions:
+  domain.PaymentMethod:
+    properties:
+      id:
+        type: integer
+      payment_method:
+        type: string
+    type: object
   domain.User:
     type: object
   request.Address:
@@ -35,12 +42,29 @@ definitions:
       state:
         type: string
     type: object
+  request.AdminLogin:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+      user_name:
+        maxLength: 20
+        minLength: 8
+        type: string
+    type: object
   request.Block:
     properties:
       user_id:
         type: integer
     required:
     - user_id
+    type: object
+  request.Category:
+    properties:
+      category_name:
+        description: ID           uint   `json:"id"`
+        type: string
     type: object
   request.LoginData:
     properties:
@@ -68,6 +92,40 @@ definitions:
     - otp
     - phone_number
     type: object
+  request.ProductItemReq:
+    properties:
+      discount_price:
+        type: integer
+      price:
+        type: integer
+      product_brand:
+        type: string
+      product_id:
+        type: integer
+      qty_in_stock:
+        type: integer
+    required:
+    - product_brand
+    - product_id
+    - qty_in_stock
+    type: object
+  request.ProductReq:
+    properties:
+      category_id:
+        type: integer
+      description:
+        maxLength: 1000
+        minLength: 10
+        type: string
+      product_name:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - category_id
+    - description
+    - product_name
+    type: object
   request.UpdateCartReq:
     properties:
       product_id:
@@ -80,6 +138,30 @@ definitions:
     - product_id
     - product_item_id
     - quantity
+    type: object
+  request.UpdateOrder:
+    properties:
+      address_id:
+        type: integer
+      delivery_status:
+        type: string
+      order_id:
+        type: integer
+      payment_status:
+        type: string
+      paymentmethod_id:
+        type: integer
+    type: object
+  request.UpdateProductReq:
+    properties:
+      brand_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      product_name:
+        type: string
     type: object
   response.Response:
     properties:
@@ -98,6 +180,89 @@ info:
   title: Go + Gin E-Commerce API Glamgrove
   version: 1.0.0
 paths:
+  /admin/brands/add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new product to the database.
+      parameters:
+      - description: Product details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with product details
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Failed to add product
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new product
+      tags:
+      - Products
+  /admin/brands/get:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with all categories
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get categories
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all categories
+      tags:
+      - Categories
+  /admin/coupons/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all coupons with pagination
+      parameters:
+      - description: Number of coupons per page
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of coupons
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List all coupons
+      tags:
+      - Coupons
   /admin/dashboard/:
     get:
       consumes:
@@ -117,7 +282,7 @@ paths:
       summary: Get dashboard details
       tags:
       - Admin Dashboard
-  /admin/sales-report/{period}:
+  /admin/dashboard/filteredSalesReport:
     get:
       consumes:
       - application/json
@@ -142,6 +307,487 @@ paths:
       summary: Get filtered sales report
       tags:
       - Admin
+  /admin/dashboard/salesReport:
+    get:
+      consumes:
+      - application/json
+      description: Generates a sales report based on the provided start and end dates,
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      - description: Start date of the sales report (YYYY-MM-DD)
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: End date of the sales report (YYYY-MM-DD)
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully generated pdf
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Please add start date as params" or "Please add end date as
+            params" or "There is no sales report on this period
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to generate PDF
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate sales report in PDF format
+      tags:
+      - Reports
+  /admin/dashboard/salesdata:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves sales statistics within the specified date range.
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Sales data fetched successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Can't calculate details of sales
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get sales statistics
+      tags:
+      - Products
+  /admin/login/:
+    post:
+      consumes:
+      - application/json
+      description: Login to Admin account.
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.AdminLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Admin login
+      tags:
+      - Admin
+  /admin/order/listOrder:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all orders with pagination
+      parameters:
+      - description: Number of orders per page
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get Orders successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all orders
+      tags:
+      - Orders
+  /admin/paymentmethod/add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new payment method based on the provided details.
+      parameters:
+      - description: Payment method details
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/domain.PaymentMethod'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added payment method
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Error while fetching data from user" or "Can't add payment
+            method
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new payment method
+      tags:
+      - Payment Methods
+  /admin/paymentmethod/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a payment method by its ID.
+      parameters:
+      - description: Payment method ID to delete
+        in: query
+        name: methodID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid parameters
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a payment method
+      tags:
+      - Payment Methods
+  /admin/paymentmethod/update:
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing payment method.
+      parameters:
+      - description: Payment method object to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.PaymentMethod'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Error while getting data or invalid parameters
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a payment method
+      tags:
+      - Payment Methods
+  /admin/paymentmethod/view:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of payment methods with pagination support.
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: count
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of payment methods
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment methods
+      tags:
+      - Payment Methods
+  /admin/products/additemimage:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Adds image(s) to a specific product item.
+      parameters:
+      - description: Product Item ID
+        in: formData
+        name: product_item_id
+        required: true
+        type: integer
+      - description: Image file(s)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with added images
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Error message with details
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add image to a product item
+      tags:
+      - Products
+  /admin/products/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the product with the specified ID.
+      parameters:
+      - description: Product ID to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product deleted successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to delete product
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Delete a product
+      tags:
+      - Products
+  /admin/products/imageCrop:
+    post:
+      consumes:
+      - application/json
+      description: Crops the specified image.
+      parameters:
+      - description: Product image ID
+        in: query
+        name: product_image_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image cropped and saved successfully
+          schema:
+            type: object
+        "400":
+          description: product_image_id is required" or "Invalid product_image_id
+          schema:
+            type: object
+        "500":
+          description: Failed to crop image" or "Failed to open image" or "Failed
+            to save image
+          schema:
+            type: object
+      summary: Crop image
+      tags:
+      - Images
+  /admin/products/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of products with pagination support.
+      parameters:
+      - description: Number of products to retrieve per page
+        in: query
+        name: count
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No products to show
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get all products
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List products
+      tags:
+      - Products
+  /admin/products/product-item:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new product item.
+      parameters:
+      - description: Product item details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProductItemReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product item added successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add product item
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add a product item
+      tags:
+      - Products
+  /admin/products/product-item/:product_id:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves product items based on the provided product ID.
+      parameters:
+      - description: Product ID
+        in: query
+        name: product_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product items fetched successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid param input" or "No product items for this product
+            ID
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get product item for given product ID
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get product items by product ID
+      tags:
+      - Products
+  /admin/products/update:
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing product with the provided details.
+      parameters:
+      - description: Product ID to update
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product details to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Product updated successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Failed to update product
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update a product
+      tags:
+      - Products
   /admin/users/:
     get:
       consumes:
@@ -200,6 +846,37 @@ paths:
       summary: Block or unblock user
       tags:
       - Admin
+  /admin/users/return-orders:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all pending return requests with pagination
+        support.
+      parameters:
+      - description: Number of items per page
+        in: query
+        name: count
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Return Request List
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid inputs" or "Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all pending return requests
+      tags:
+      - Return Orders
   /cart/get:
     get:
       consumes:
@@ -274,7 +951,41 @@ paths:
       summary: Update user's cart
       tags:
       - User
-  /login/LoginSubmit:
+  /coupons/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all coupons with pagination
+      parameters:
+      - description: Number of coupons per page
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of coupons
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List all coupons
+      tags:
+      - Coupons
+  /login/:
     post:
       consumes:
       - application/json
@@ -291,21 +1002,231 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully logged in
+          description: OK
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: Missing or invalid entry" "Field should not be empty" "Failed
-            to login
+          description: Bad Request
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Generate JWT failure
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Response'
       summary: Handle user login
       tags:
       - User Profile Management
+  /order/cancelOrder:
+    delete:
+      consumes:
+      - application/json
+      description: Cancels an order with the specified order_id
+      parameters:
+      - description: ID of the order to be canceled
+        in: query
+        name: order_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted order
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Please add id as params" or "Can't delete order
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Cancel an order
+      tags:
+      - Orders
+  /order/createOrder:
+    post:
+      consumes:
+      - application/json
+      description: Creates an order with the provided parameters
+      parameters:
+      - description: ID of the address associated with the order
+        in: query
+        name: address_id
+        required: true
+        type: integer
+      - description: ID of the payment method used for the order
+        in: query
+        name: paymentmethod_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created order. Please complete payment
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Failed to get address id" or "Failed to get payment method
+            id" or "Failed to get total amount" or "Failed to create order
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Create an order
+      tags:
+      - Orders
+  /order/listOrder:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all orders for the authenticated user with
+        pagination
+      parameters:
+      - description: Number of orders per page
+        in: query
+        name: count
+        required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get Orders successfully
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Missing or invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Something went wrong!
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: List all orders for a user
+      tags:
+      - Orders
+  /order/placeOrder:
+    post:
+      consumes:
+      - application/json
+      description: Places an order with the specified order_id and coupon_id
+      parameters:
+      - description: ID of the order to be placed
+        in: query
+        name: order_id
+        required: true
+        type: integer
+      - description: ID of the coupon to be applied
+        in: query
+        name: coupon_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully placed order
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid coupon" or "Add more quantity" or "Failed to place
+            order
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Place an order
+      tags:
+      - Orders
+  /order/updateOrder:
+    put:
+      consumes:
+      - application/json
+      description: Updates details of an existing order
+      parameters:
+      - description: Order details to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateOrder'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated order
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Error while getting data from users" or "Error while updating
+            data
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update an order
+      tags:
+      - Orders
+  /products/:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of products with pagination support.
+      parameters:
+      - description: Number of products to retrieve per page
+        in: query
+        name: count
+        type: integer
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No products to show
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get all products
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List products
+      tags:
+      - Products
+  /products/brands:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories from the database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message with all categories
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to get categories
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all categories
+      tags:
+      - Categories
   /profile/:
     get:
       consumes:
@@ -466,6 +1387,40 @@ paths:
       summary: Get all user address
       tags:
       - User
+  /return/product:
+    post:
+      consumes:
+      - application/json
+      description: Requests to return an order with the specified order ID, along
+        with return reason (optional).
+      parameters:
+      - description: ID of the order to be returned
+        in: query
+        name: orderId
+        required: true
+        type: integer
+      - description: Reason for return (optional)
+        in: query
+        name: Damage
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully requested to return products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Please add order id as params" or "Error while getting id from
+            cookie" or "Invalid order_id" or "Failed to find refund amount" or "Failed
+            to return order
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Request to return an order
+      tags:
+      - Returns
   /signup/:
     post:
       consumes:
@@ -529,7 +1484,7 @@ paths:
       tags:
       - User
 securityDefinitions:
-  BearerTokenAuth:
+  ApiKeyAuth:
     in: header
     name: Authorization
     type: apiKey

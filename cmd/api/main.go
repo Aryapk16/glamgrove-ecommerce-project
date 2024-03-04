@@ -14,7 +14,7 @@ import (
 // @version 1.0.0
 // @description Glamgrove is an E-commerce platform for purchasing high quality beauty products
 // @contact.name API Support
-// @securityDefinitions.apikey BearerTokenAuth
+// @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
 // @host localhost:8000

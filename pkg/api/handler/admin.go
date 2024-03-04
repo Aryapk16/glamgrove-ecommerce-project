@@ -28,17 +28,15 @@ func NewAdminHandler(adminService interfaces.AdminService, orderservice interfac
 
 // AdminLogin godoc
 // @Summary Admin login
-// @Description Login to Admin account
+// @Description Login to Admin account.
 // @Tags Admin
 // @Accept json
 // @Produce json
-// @Param input body request.AdminLogin true "inputs"
-// @Failure        400	{object}	response.Response{}		"Missing or Invalid entry"
-//	@Failure	   400	{object}	response.Response{}		"Failed to login"
-//  @Failure	   500 {object}	response.Response{}		"Generate JWT failure"
-// @Success 200 {object} response.SuccessResponse "Successfully logged in"
-// @Router /admin/login [post]
-
+// @Param  input body request.AdminLogin true "inputs"
+// @Success  200 {object} response.Response
+// @Failure  400 {object} response.Response
+// @Failure  500 {object} response.Response
+// @Router /admin/login/ [post]
 func (a *AdminHandler) AdminLogin(c *gin.Context) {
 	//Bind login data
 	var body request.AdminLogin
@@ -148,6 +146,18 @@ func (a *AdminHandler) BlockUnBlockUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// GetAllReturnOrder godoc
+// @Summary Get all pending return requests
+// @Description Retrieves a list of all pending return requests with pagination support.
+// @Tags Return Orders
+// @Accept json
+// @Produce json
+// @Param count query integer false "Number of items per page"
+// @Param page_number query integer false "Page number"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{}	 "Return Request List"
+// @Failure 400 {object} response.Response{}	 "Missing or invalid inputs" or "Something went wrong!"
+// @Router  /admin/users/return-orders [get]
 func (a *AdminHandler) GetAllReturnOrder(c *gin.Context) {
 
 	count, err1 := utils.StringToUint(c.Query("count"))
@@ -232,7 +242,7 @@ func (a *AdminHandler) DashBoard(c *gin.Context) {
 // @Param period path string true "Time period for the sales report"
 // @Success 200 {object} response.Response{}  "Sales report retrieved successfully"
 // @Failure 500 {object} response.Response{}  "Sales report could not be retrieved"
-// @Router /admin/sales-report/{period} [get]
+// @Router /admin/dashboard/filteredSalesReport [get]
 func (a *AdminHandler) FilteredSalesReport(c *gin.Context) {
 
 	timePeriod := c.Param("period")

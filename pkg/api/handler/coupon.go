@@ -21,6 +21,19 @@ func NewCouponHandler(CouponUseCase service.CouponService) *CouponHandler {
 		couponService: CouponUseCase,
 	}
 }
+
+// CreateNewCoupon godoc
+// @Summary Create a new coupon
+// @Description Creates a new coupon
+// @Tags Coupons
+// @Accept json
+// @Produce json
+// @Param body body CreateCoupon true "Coupon details"
+// @Success 200 {object} response.Response{} "Coupon created successfully"
+// @Failure 400 {object} response.Response{} "Missing or invalid input"
+// @Failure 500 {object} response.Response{} "Internal server error"
+// @Router /admin/coupons/create [post]
+
 func (c *CouponHandler) CreateNewCoupon(ctx *gin.Context) {
 	var body request.CreateCoupon
 	err := ctx.ShouldBindJSON(&body)
@@ -38,6 +51,19 @@ func (c *CouponHandler) CreateNewCoupon(ctx *gin.Context) {
 	ctx.JSON(200, response)
 }
 
+// ListAllCoupons godoc
+// @Summary List all coupons
+// @Description Retrieves a list of all coupons with pagination
+// @Tags Coupons
+// @Accept json
+// @Produce json
+// @Param count query integer true "Number of coupons per page"
+// @Param page_number query integer true "Page number"
+// @Success 200 {object} response.Response{} "List of coupons"
+// @Failure 400 {object} response.Response{} "Invalid inputs"
+// @Failure 500 {object} response.Response{}  "Internal server error"
+// @Router /coupons/list  [get]
+// @Router /admin/coupons/list [get]
 func (c *CouponHandler) ListAllCoupons(ctx *gin.Context) {
 	count, err1 := utils.StringToUint(ctx.Query("count"))
 	if err1 != nil {
@@ -64,6 +90,17 @@ func (c *CouponHandler) ListAllCoupons(ctx *gin.Context) {
 	response := response.SuccessResponse(200, "List of coupons", coupons)
 	ctx.JSON(200, response)
 }
+
+// MakeCouponInvalid godoc
+// @Summary Make coupon invalid
+// @Description Marks a coupon as invalid
+// @Tags Coupons
+// @Accept json
+// @Produce json
+// @Param id query integer true "ID of the coupon to be made invalid"
+// @Success 200 {object} response.Response{} "Successfully made Coupon as invalid"
+// @Failure 400 {object} response.Response{} "Fields provided are in wrong format" or "Coupon cannot be made invalid"
+// @Router /admin/coupons/invalid [put]
 
 func (c *CouponHandler) MakeCouponInvalid(ctx *gin.Context) {
 

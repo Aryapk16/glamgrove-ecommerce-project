@@ -8,10 +8,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// type ProductHandler struct {
-// 	ProductService service.ProductService
-// }
-
+// Statistics godoc
+// @Summary Get sales statistics
+// @Description Retrieves sales statistics within the specified date range.
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param startDate query string true "Start date (YYYY-MM-DD)"
+// @Param endDate query string true "End date (YYYY-MM-DD)"
+// @Success 200 {object} response.Response{} "Sales data fetched successfully"
+// @Failure 400 {object} response.Response{} "Please add start date as params" or "Please add end date as params"
+// @Failure 400 {object} response.Response{} "Can't calculate details of sales"
+// @Router  /admin/dashboard/salesdata [get]
 func (pd *ProductHandler) Statistics(c *gin.Context) {
 	var sales request.Sales
 	sales.Sdate = c.Query("startDate")

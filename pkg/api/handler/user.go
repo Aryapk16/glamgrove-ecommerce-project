@@ -30,10 +30,10 @@ func NewUserHandler(userUsecase interfaces.UserService) *UserHandler {
 // @Accept json
 // @Produce json
 // @Param request body   request.LoginData true "User login details"
-// @Success 200 {object} response.Response "Successfully logged in"
-// @Failure 400 {object} response.Response "Missing or invalid entry" "Field should not be empty" "Failed to login"
-// @Failure 500 {object} response.Response "Generate JWT failure"
-// @Router /login/LoginSubmit [post]
+// @Success 200 {object} response.Response 
+// @Failure 400 {object} response.Response 
+// @Failure 500 {object} response.Response 
+// @Router /login/ [post]
 func (u *UserHandler) LoginSubmit(c *gin.Context) {
 	var body request.LoginData
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -42,7 +42,7 @@ func (u *UserHandler) LoginSubmit(c *gin.Context) {
 		return
 	}
 	if body.Email == "" && body.Password == "" {
-		_ = errors.New("Please enter Email and password")
+		_ = errors.New("please enter Email and password")
 		response := "Field should not be empty"
 		c.JSON(http.StatusBadRequest, response)
 		return
