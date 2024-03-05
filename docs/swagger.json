@@ -1,12 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Glamgrove is an E-commerce platform for purchasing high quality beauty products",
-        "title": "Go + Gin E-Commerce API Glamgrove",
-        "contact": {
-            "name": "API Support"
-        },
-        "version": "1.0.0"
+        "contact": {}
     },
     "paths": {
         "/admin/brands/add": {
@@ -2245,13 +2240,6 @@
                     "type": "integer"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }

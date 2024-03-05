@@ -173,12 +173,7 @@ definitions:
         type: integer
     type: object
 info:
-  contact:
-    name: API Support
-  description: Glamgrove is an E-commerce platform for purchasing high quality beauty
-    products
-  title: Go + Gin E-Commerce API Glamgrove
-  version: 1.0.0
+  contact: {}
 paths:
   /admin/brands/add:
     post:
@@ -1483,9 +1478,4 @@ paths:
       summary: User OTP Verification
       tags:
       - User
-securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"
