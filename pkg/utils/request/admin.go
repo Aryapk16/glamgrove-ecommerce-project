@@ -3,8 +3,8 @@ package request
 import "time"
 
 type AdminLogin struct {
-	UserName string `json:"user_name" validate:"min=8,max=20"`
-	Password string `json:"password" validate:"min=8,max=20"`
+	UserName string `json:"user_name" validate:"min=4,max=20"`
+	Password string `json:"password" validate:"min=3,max=20"`
 }
 type ReqSalesReport struct {
 	StartDate time.Time `json:"start_date"`
