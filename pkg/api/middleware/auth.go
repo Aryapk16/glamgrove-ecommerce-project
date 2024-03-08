@@ -98,3 +98,19 @@ func GetTimeFromPeriod(timePeriod string) (time.Time, time.Time) {
 	return endDate.AddDate(0, 0, -6), endDate
 
 }
+
+func HandleOptionsRequest(c *gin.Context) {
+	// Set CORS headers
+	c.Header("Access-Control-Allow-Origin", " *")
+	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+	c.Header("Access-Control-Allow-Credentials", "true")
+
+	// Handle OPTIONS request (pre-flight)
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(http.StatusNoContent)
+		return
+	}
+
+	c.Next()
+}

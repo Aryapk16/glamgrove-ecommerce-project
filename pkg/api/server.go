@@ -2,6 +2,7 @@ package http
 
 import (
 	"glamgrove/pkg/api/handler"
+	"glamgrove/pkg/api/middleware"
 	"glamgrove/pkg/api/routes"
 
 	"github.com/gin-contrib/cors"
@@ -26,7 +27,17 @@ func NewServerHTTP(adminHandler *handler.AdminHandler,
 	engine := gin.New()
 
 	engine.Use(gin.Logger())
-	engine.Use(cors.Default())
+	// corsConfig := cors.DefaultConfig()
+	// //corsConfig.AllowOrigins = []string{"http://localhost:8000"} // Replace "yourport" with your actual port
+	// corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
+	// corsConfig.AllowHeaders = []string{"Origin", "Content-Type"}
+	// corsConfig.AllowAllOrigins = true
+
+	// Apply CORS middleware with custom configuration
+	//engine.Use(cors.New(corsConfig))
+
+	//engine.Use(cors.Default())
+
 	engine.LoadHTMLGlob("views/*.html")
 
 	// Get swagger docs
@@ -41,5 +52,10 @@ func NewServerHTTP(adminHandler *handler.AdminHandler,
 }
 
 func (sh *ServerHTTP) Start() {
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"} // Allow requests from all origins
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	sh.engine.Use(middleware.HandleOptionsRequest)
+	sh.engine.Use(cors.New(config))
 	sh.engine.Run(":8000")
 }
