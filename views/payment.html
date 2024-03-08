@@ -46,10 +46,11 @@
 
         //Function for Razorpay verification on the backend
         function verifyPayment(userid, response) {
+            console.log("hello")
             console.log(response.razorpay_payment_id, " : ", response.razorpay_order_id, " ", response.razorpay_signature, " ",userid," ");
             $.ajax({
                 type: "POST",
-                url: 'http://localhost:8081/order/verify',
+                url: 'https://aryapk.site/order/verify',
                 data: JSON.stringify({
                     "razorpay_payment_id": response.razorpay_payment_id,
                     "razorpay_order_id": response.razorpay_order_id,

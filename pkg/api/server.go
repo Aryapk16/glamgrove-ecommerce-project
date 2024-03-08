@@ -4,6 +4,7 @@ import (
 	"glamgrove/pkg/api/handler"
 	"glamgrove/pkg/api/routes"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
@@ -25,6 +26,7 @@ func NewServerHTTP(adminHandler *handler.AdminHandler,
 	engine := gin.New()
 
 	engine.Use(gin.Logger())
+	engine.Use(cors.Default())
 	engine.LoadHTMLGlob("views/*.html")
 
 	// Get swagger docs
