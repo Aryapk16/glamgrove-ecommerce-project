@@ -200,3 +200,20 @@ func (pu *productUseCase) SalesData(sDate, Edate time.Time) (response.SalesRespo
 
 	return salesData, nil
 }
+func (pu *productUseCase) DeleteCart(c context.Context, usr_id uint) error {
+	err := pu.ProductRepository.DeleteCart(c, usr_id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pu *productUseCase) UpdateStatusRazorpay(c context.Context, order_id uint) (response.OrderResponse, error) {
+	order_status := "order confirmed"
+	payment_status := "Payment Done"
+	orderResp, err := pu.ProductRepository.UpdateStatusRazorpay(c, order_id, order_status, payment_status)
+	if err != nil {
+		return response.OrderResponse{}, err
+	}
+	return orderResp, nil
+}

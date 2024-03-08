@@ -23,6 +23,8 @@ type ProductService interface {
 	AddImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductImage, error)
 	AddItemImage(c context.Context, pid int, files []*multipart.FileHeader) ([]domain.ProductItemImage, error)
 
-
 	SalesData(sDate, Edate time.Time) (response.SalesResponse, error)
+	//verify and clear cart
+	DeleteCart(c context.Context, usr_id uint) error
+	UpdateStatusRazorpay(c context.Context, order_id uint) (response.OrderResponse, error)
 }

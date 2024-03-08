@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"glamgrove/pkg/domain"
@@ -8,6 +9,7 @@ import (
 	"glamgrove/pkg/utils"
 	"glamgrove/pkg/utils/request"
 	"glamgrove/pkg/utils/response"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -511,4 +513,41 @@ func (o *OrderHandler) SalesReport(c *gin.Context) {
 
 	response := response.SuccessResponse(200, "Successfully generated pdf", " ")
 	c.JSON(200, response)
+}
+
+// to verify razorpay payment
+func (c *ProductHandler) RazorpayVerify(ctx *gin.Context) {
+	// Read the request body
+	body, err := ioutil.ReadAll(ctx.Request.Body)
+	if err != nil {
+		// Handle error
+		return
+	}
+
+	// Unmarshal the JSON data into the struct
+	var data request.RazorpayVeification
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		// Handle error
+		return
+	}
+	userid, _ := strconv.Atoi(data.UserID)
+	//verify the razorpay payment
+	err = utils.VeifyRazorpayPayment(data.RazorpayOrderID, data.RazorpayPaymentID, data.RazorpaySignature)
+	if err != nil {
+		response := response.ErrorResponse(400, "faild to verify razorpay order ", err.Error(), nil)
+		ctx.JSON(400, response)
+		return
+	}
+
+	//delete ordered cart
+	err1 := c.ProductService.DeleteCart(ctx, uint(userid))
+	if err1 != nil {
+		response := response.ErrorResponse(400, "faild to delete cart ", err.Error(), nil)
+		ctx.JSON(400, response)
+		return
+	}
+
+	response := response.SuccessResponse(200, "successfully payment completed and order approved", nil)
+	ctx.JSON(200, response)
 }

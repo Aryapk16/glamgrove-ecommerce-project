@@ -29,4 +29,8 @@ type ProductRepository interface {
 
 	//sales
 	SalesData(sDate, Edate time.Time) (response.SalesResponse, error)
+
+	//verify and clearcart
+	DeleteCart(c context.Context, usr_id uint) error
+	UpdateStatusRazorpay(c context.Context, order_id uint, order_status string, payment_status string) (response.OrderResponse, error)
 }

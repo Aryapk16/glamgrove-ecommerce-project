@@ -25,4 +25,6 @@ type UserService interface {
 	Profile(ctx context.Context, userId uint) (profile response.Profile, err error)
 // forgot password
 	SendOtpForgotPass(ctx context.Context,phn string)error
+
+	
 }

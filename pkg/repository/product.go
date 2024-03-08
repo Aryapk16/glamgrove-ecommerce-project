@@ -290,3 +290,30 @@ func (pd *productDatabase) SalesData(sDate, eDate time.Time) (response.SalesResp
 	return salesData, nil
 
 }
+
+// verify and delete cart items
+func (pd *productDatabase) DeleteCart(c context.Context, usr_id uint) error {
+	var cartItems domain.CartItems
+	query := `DELETE FROM cart_items WHERE user_id=?`
+	err := pd.DB.Raw(query, usr_id).Scan(&cartItems).Error
+	if err != nil {
+		return errors.New("failed to delete cart items")
+	}
+	return nil
+}
+
+func (pd *productDatabase) UpdateStatusRazorpay(c context.Context, order_id uint, order_status string, payment_status string) (response.OrderResponse, error) {
+	var order domain.Order
+	var orderResp response.OrderResponse
+	query := `update orders set order_status=?,payment_status=?  where order_id=?`
+	err := pd.DB.Raw(query, order_status, payment_status, order_id).Scan(&order).Error
+	if err != nil {
+		return response.OrderResponse{}, errors.New("failed to update order status")
+	}
+	query1 := `select o.total_amount,o.order_status,o.address_id,p.payment_method from orders as o left join payment_methods as p on o.payment_method_id=p.method_id where o.order_id=?`
+	err1 := pd.DB.Raw(query1, order_id).Scan(&orderResp).Error
+	if err1 != nil {
+		return response.OrderResponse{}, errors.New("failed to display order details")
+	}
+	return orderResp, nil
+}
