@@ -79,7 +79,7 @@ func (u *UserUseCase) Login(c context.Context, user domain.User) (domain.User, e
 	err = bcrypt.CompareHashAndPassword([]byte(DBUser.Password), []byte(user.Password))
 	if err != nil {
 		fmt.Println(err)
-		return user, errors.New("Password incorrect")
+		return user, errors.New("password incorrect")
 	}
 
 	return DBUser, nil

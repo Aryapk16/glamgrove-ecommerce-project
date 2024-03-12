@@ -29,11 +29,11 @@ func (p *PaymentUseCase) AddPaymentMethod(c context.Context, payment domain.Paym
 	err := p.PaymentRepository.FindPaymentMethod(c, payment)
 	fmt.Println(err)
 	if err == nil {
-		return domain.PaymentMethod{}, errors.New("Payment method already existsssssssssss")
+		return domain.PaymentMethod{}, errors.New("payment method already existsssssssssss")
 	}
 	paymentresp, err1 := p.PaymentRepository.AddPaymentMethod(c, payment)
 	if err1 != nil {
-		return domain.PaymentMethod{}, errors.New("Failed to add payment method")
+		return domain.PaymentMethod{}, errors.New("failed to add payment method")
 	}
 
 	return paymentresp, nil
@@ -59,7 +59,7 @@ func (p *PaymentUseCase) UpdatePaymentMethod(c context.Context, payment domain.P
 	_, err := p.PaymentRepository.FindPaymentMethodId(c, payment.ID)
 
 	if err != nil {
-		return domain.PaymentMethod{}, errors.New("Payment method doesn't exists")
+		return domain.PaymentMethod{}, errors.New("payment method doesn't exists")
 	}
 
 	paymentresp, err := p.PaymentRepository.UpdatePaymentMethod(c, payment)

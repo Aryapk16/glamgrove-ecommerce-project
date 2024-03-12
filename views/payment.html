@@ -45,44 +45,44 @@
         };
 
         //Function for Razorpay verification on the backend
-        function verifyPayment(userid, response) {
-            console.log(response.razorpay_payment_id, " : ", response.razorpay_order_id, " ", response.razorpay_signature, " ",userid," ");
-            $.ajax({
-                type: "POST",
-                url: 'https://aryapk.site/order/verify',
-                data: JSON.stringify({
-                    "razorpay_payment_id": response.razorpay_payment_id,
-                    "razorpay_order_id": response.razorpay_order_id,
-                    "razorpay_signature": response.razorpay_signature,
-                    "user_id": userid
-                }),
-                contentType: "application/json", // Set the request content type to JSON
-                success: function (response) {
-                    console.log("verification response from backend", response);
-                    if (response.data) {
-                        Swal.fire({
-                            title: "Payment Successfully Verified",
-                            icon: 'success',
-                        });
-                        // Perform additional actions upon successful payment verification
-                    } else {
-                        Swal.fire({
-                            title: "Sorry, Payment Failed on data",
-                            icon: 'warning',
-                            dangerMode: true,
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log("verification error", error);
-                    Swal.fire({
-                        title: "Sorry, Payment Failed by backend verification",
-                        icon: 'warning',
-                        dangerMode: true,
-                    });
-                }
-            });
-       }
+        // function verifyPayment(userid, response) {
+        //     console.log(response.razorpay_payment_id, " : ", response.razorpay_order_id, " ", response.razorpay_signature, " ",userid," ");
+        //     $.ajax({
+        //         type: "POST",
+        //         url: 'https://aryapk.site/order/verify',
+        //         data: JSON.stringify({
+        //             "razorpay_payment_id": response.razorpay_payment_id,
+        //             "razorpay_order_id": response.razorpay_order_id,
+        //             "razorpay_signature": response.razorpay_signature,
+        //             "user_id": userid
+        //         }),
+        //         contentType: "application/json", // Set the request content type to JSON
+        //         success: function (response) {
+        //             console.log("verification response from backend", response);
+        //             if (response.data) {
+        //                 Swal.fire({
+        //                     title: "Payment Successfully Verified",
+        //                     icon: 'success',
+        //                 });
+        //                 // Perform additional actions upon successful payment verification
+        //             } else {
+        //                 Swal.fire({
+        //                     title: "Sorry, Payment Failed on data",
+        //                     icon: 'warning',
+        //                     dangerMode: true,
+        //                 });
+        //             }
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.log("verification error", error);
+        //             Swal.fire({
+        //                 title: "Sorry, Payment Failed by backend verification",
+        //                 icon: 'warning',
+        //                 dangerMode: true,
+        //             });
+        //         }
+        //     });
+    //    }
     </script>
 </body>
 </html>
