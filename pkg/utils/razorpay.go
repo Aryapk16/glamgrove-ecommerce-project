@@ -40,7 +40,7 @@ func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razor
 func VeifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignatur string) error {
 
 	razorpayKey, razorpaySecret := config.GetRazorPayConfig()
-
+	fmt.Println(razorpayKey, razorpaySecret)
 	//verify signature
 	data := razorpayOrderID + "|" + razorpayPaymentID
 	h := hmac.New(sha256.New, []byte(razorpaySecret))

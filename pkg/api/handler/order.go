@@ -535,6 +535,7 @@ func (c *ProductHandler) RazorpayVerify(ctx *gin.Context) {
 	//verify the razorpay payment
 	err = utils.VeifyRazorpayPayment(data.RazorpayOrderID, data.RazorpayPaymentID, data.RazorpaySignature)
 	if err != nil {
+
 		response := response.ErrorResponse(400, "faild to verify razorpay order ", err.Error(), nil)
 		ctx.JSON(400, response)
 		return
@@ -543,11 +544,13 @@ func (c *ProductHandler) RazorpayVerify(ctx *gin.Context) {
 	//delete ordered cart
 	err1 := c.ProductService.DeleteCart(ctx, uint(userid))
 	if err1 != nil {
+
 		response := response.ErrorResponse(400, "faild to delete cart ", err.Error(), nil)
 		ctx.JSON(400, response)
 		return
 	}
 
-	response := response.SuccessResponse(200, "successfully payment completed and order approved", nil)
+	response := response.SuccessResponse(200, "successfully payment completed and order approved", data)
 	ctx.JSON(200, response)
+
 }

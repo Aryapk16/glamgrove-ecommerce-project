@@ -45,7 +45,7 @@ func (a *adminDatabase) BlockUnBlockUser(ctx context.Context, userID uint) error
 	// Check user if valid or not
 	var user domain.User
 	query := `SELECT * FROM users WHERE id=?`
-	a.DB.Raw(query, userID).Scan(&user)
+	a.DB.Raw(query, userID).Scan(user)
 	if user.Email == "" {
 		// check user email with user ID
 		return errors.New("invalid user id user doesn't exist")

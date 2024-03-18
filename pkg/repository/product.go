@@ -294,7 +294,7 @@ func (pd *productDatabase) SalesData(sDate, eDate time.Time) (response.SalesResp
 // verify and delete cart items
 func (pd *productDatabase) DeleteCart(c context.Context, usr_id uint) error {
 	var cartItems domain.CartItems
-	query := `DELETE FROM cart_items WHERE user_id=?`
+	query := `DELETE FROM carts WHERE user_id=?`
 	err := pd.DB.Raw(query, usr_id).Scan(&cartItems).Error
 	if err != nil {
 		return errors.New("failed to delete cart items")

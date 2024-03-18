@@ -101,7 +101,7 @@ func GetTimeFromPeriod(timePeriod string) (time.Time, time.Time) {
 
 func HandleOptionsRequest(c *gin.Context) {
 	// Set CORS headers
-	c.Header("Access-Control-Allow-Origin", " *")
+	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
 	c.Header("Access-Control-Allow-Credentials", "true")

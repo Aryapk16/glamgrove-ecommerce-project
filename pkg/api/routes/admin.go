@@ -11,7 +11,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler, produ
 	//login
 	login := api.Group("/login")
 	{
-		login.POST("/", adminHandler.AdminLogin)
+		login.GET("/", adminHandler.AdminLogin)
 
 	}
 	//middleware

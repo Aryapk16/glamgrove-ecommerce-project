@@ -27,9 +27,9 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 		forgotpass.POST("/", userHandler.SendOtpForgotPass)
 	}
 
-	verifyOrder := api.Group("/order")
+	verifyOrder := api.Group("/orderrazo")
 	{
-		verifyOrder.POST("/order/verify", productHandler.RazorpayVerify)
+		verifyOrder.POST("verify", productHandler.RazorpayVerify)
 	}
 
 	//api.POST("/order/verify", productHandler.RazorpayVerify)
