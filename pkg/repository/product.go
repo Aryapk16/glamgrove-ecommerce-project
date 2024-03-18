@@ -229,7 +229,7 @@ func (p *productDatabase) GetProductItems(ctx context.Context, productId uint) (
     pi.discount_price AS offer_price,
    
 FROM
-    product_items p
+    product_items pi
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN product_items pi ON pi.product_id = p.id
     LEFT JOIN product_item_images im ON p.id = im.product_item_id
