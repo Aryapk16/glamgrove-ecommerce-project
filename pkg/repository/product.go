@@ -223,12 +223,12 @@ func (p *productDatabase) GetProductItems(ctx context.Context, productId uint) (
     p.id AS product_id,
     pi.id AS product_item_id,
     pi.qty_in_stock AS stock_available,
-    p.name AS product_name,
+   // p.name AS product_name,
     c.category_name AS brand,
-    p.description,
+    //p.description,
     p.price,
     pi.discount_price AS offer_price,
-    im.image
+    //im.image
 FROM
     product_items p
     JOIN categories c ON c.id = p.category_id
