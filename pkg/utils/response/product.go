@@ -20,7 +20,7 @@ type ProductItemResp struct {
 	ProductBrand   string `json:"product_brand"`
 	StockAvailable uint   `json:"stock_available"`
 	ProductName    string `json:"product_name"`
-	Category       string `json:"category_name"`
+	Category       string `json:"brand"`
 	Description    string `json:"description"`
 
 	Price      uint     `json:"price"`
