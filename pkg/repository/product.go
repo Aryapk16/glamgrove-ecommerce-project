@@ -223,8 +223,9 @@ func (p *productDatabase) GetProductItems(ctx context.Context, productId uint) (
     p.id AS product_id,
     pi.id AS product_item_id,
     pi.qty_in_stock AS stock_available,
+	p.name AS product_name,
     c.category_name AS brand,
-    
+    p.description,
     pi.price,
     pi.discount_price AS offer_price
    
@@ -236,7 +237,7 @@ FROM
 WHERE
     p.id = $1;
 `
-	fmt.Println(productItems)
+	
 	if err := p.DB.Raw(query, productId).Scan(&productItems).Error; err != nil {
 		return productItems, fmt.Errorf("failed to get product items: %v", err)
 	}
