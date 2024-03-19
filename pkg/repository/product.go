@@ -226,16 +226,17 @@ func (p *productDatabase) GetProductItems(ctx context.Context, productId uint) (
     c.category_name AS brand,
     
     p.price,
-    pi.discount_price AS offer_price,
+    pi.discount_price AS offer_price
    
 FROM
-    product_items pi
+    products p
     LEFT JOIN categories c ON c.id = p.category_id
     LEFT JOIN product_items pi ON pi.product_id = p.id
     LEFT JOIN product_item_images im ON p.id = im.product_item_id
 WHERE
     p.id = $1;
 `
+
 	if err := p.DB.Raw(query, productId).Scan(&productItems).Error; err != nil {
 		return productItems, fmt.Errorf("failed to get product items: %v", err)
 	}
