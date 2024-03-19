@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+
 func JwtCookieSetup(c *gin.Context, name string, userId uint) bool {
 	//time = 10 mins
 	cookieTime := time.Now().Add(10 * time.Hour).Unix()

@@ -43,10 +43,7 @@ func (a *adminService) Login(c context.Context, admin domain.Admin) (domain.Admi
 	if dbAdmin.Password != admin.Password {
 		return domain.Admin{}, errors.New("invalid password")
 	}
-	// compare password with hash password
-	// if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
-	// 	return admin, errors.New("Wrong password")
-	// }
+	
 	return dbAdmin, nil
 
 }
