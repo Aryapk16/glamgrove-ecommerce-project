@@ -15,12 +15,12 @@ type ResponseProduct struct {
 }
 
 type ProductItemResp struct {
-	ProductID      uint   `json:"product_id"`
-	ProductItemID  uint   `json:"product_item_id"`
-	ProductBrand   string `json:"product_brand"`
+	ProductID     uint `json:"product_id"`
+	ProductItemID uint `json:"product_item_id"`
+	//ProductBrand   string `json:"product_brand"`
 	StockAvailable uint   `json:"stock_available"`
 	ProductName    string `json:"product_name"`
-	Category       string `json:"brand"`
+	Category       string `json:"category_name"`
 	Description    string `json:"description"`
 
 	Price      uint     `json:"price"`

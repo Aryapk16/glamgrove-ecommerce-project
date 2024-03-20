@@ -38,6 +38,7 @@ func (o *OrderDatabase) CreateOrder(c context.Context, order domain.Order) (resp
 	if err != nil {
 		return response.OrderResponse{}, errors.New("failed to place order")
 	}
+	fmt.Println(order.Total_Amount)
 	query := `select o.order_id, o.total_amount, o.payment_status, o.order_status, o.delivery_status, o.address_id, p.payment_method from orders as o left join payment_methods as p on o.payment_method_id = p.id where o.order_id = ?`
 	err1 := o.DB.Raw(query, order.Order_Id).Scan(&orderdetails).Error
 	if err1 != nil {
