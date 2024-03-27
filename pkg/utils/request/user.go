@@ -8,7 +8,7 @@ import (
 
 type Address struct {
 	ID        uint      `json:"-"`
-	UserID    uint      `json:"user_id"`
+	UserID    uint      `json:"-"`
 	House     string    `json:"house"`
 	City      string    `json:"city"`
 	State     string    `json:"state"`
@@ -30,9 +30,9 @@ type AddressPatch struct {
 	UpdatedAt time.Time `json:"-"`
 }
 type AddToCartReq struct {
-	UserID         uint    `json:"user_id"`
+	UserID         uint    `json:"-"`
 	ProductID      uint    `json:"product_id" binding:"required"`
-	ProductItemID  uint    `json:"product_item_id" binding:"required"`
+	ProductItemID  uint    `json:"-"`
 	Quantity       uint    `json:"quantity" binding:"required"`
 	Price          float64 `json:"-"`
 	Discount_price uint    `json:"-"`

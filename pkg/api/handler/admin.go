@@ -43,6 +43,7 @@ func (a *AdminHandler) AdminLogin(c *gin.Context) {
 	if err := c.ShouldBindJSON(&body); err != nil {
 		response := response.ErrorResponse(400, "Missing or invalid entry", err.Error(), body)
 		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 	// validate login data
 	var admin domain.Admin
@@ -57,10 +58,12 @@ func (a *AdminHandler) AdminLogin(c *gin.Context) {
 	if !auth.JwtCookieSetup(c, "admin-auth", admin.ID) {
 		response := response.ErrorResponse(500, "Generate JWT failure", err.Error(), nil)
 		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 	// Success response
 	response := response.SuccessResponse(200, "Successfully logged in", nil)
 	c.JSON(http.StatusOK, response)
+	return
 }
 
 // ListUsers godoc

@@ -30,9 +30,9 @@ func NewUserHandler(userUsecase interfaces.UserService) *UserHandler {
 // @Accept json
 // @Produce json
 // @Param request body   request.LoginData true "User login details"
-// @Success 200 {object} response.Response 
-// @Failure 400 {object} response.Response 
-// @Failure 500 {object} response.Response 
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
 // @Router /login/ [post]
 func (u *UserHandler) LoginSubmit(c *gin.Context) {
 	var body request.LoginData
@@ -395,7 +395,7 @@ func (u *UserHandler) AddToCart(c *gin.Context) {
 	var body request.AddToCartReq
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		response := response.ErrorResponse(400, "invalid input", err.Error(), body.ProductItemID)
+		response := response.ErrorResponse(400, "invalid input", err.Error(), body)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
