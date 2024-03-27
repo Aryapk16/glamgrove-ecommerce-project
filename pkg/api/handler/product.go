@@ -223,7 +223,7 @@ func (p *ProductHandler) ListProducts(c *gin.Context) {
 	}
 
 	if pageNumberFromQuery != "" {
-		count, err = utils.StringToUint(c.Query("count"))
+		pageNumber, err = utils.StringToUint(c.Query("page_number"))
 		if err != nil {
 			response := response.ErrorResponse(400, "invalid inputs", err.Error(), nil)
 			c.JSON(http.StatusBadRequest, response)
@@ -237,6 +237,7 @@ func (p *ProductHandler) ListProducts(c *gin.Context) {
 		PageNumber: pageNumber,
 		Count:      count,
 	}
+
 	products, err := p.ProductService.GetProducts(c, pagination)
 	if err != nil {
 		response := response.ErrorResponse(500, "failed to get all products", err.Error(), nil)
