@@ -150,9 +150,9 @@ func (i *userDatabase) SavetoCart(ctx context.Context, addToCart request.AddToCa
 	if err := i.DB.Raw(query, addToCart.ProductID).Scan(&addToCart.Price).Error; err != nil {
 		return err
 	}
-	if addToCart.Price == 0 {
-		return errors.New("invalid product ID")
-	}
+	// if addToCart.Price == 0 {
+	// 	return errors.New("invalid product ID")
+	// }
 
 	// Get cart ID with user ID
 	query = `SELECT id FROM carts WHERE user_id = $1`
