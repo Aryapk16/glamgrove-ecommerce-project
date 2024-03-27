@@ -29,7 +29,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, productH
 
 	verifyOrder := api.Group("/orderrazo")
 	{
-		verifyOrder.POST("verify", productHandler.RazorpayVerify)
+		verifyOrder.POST("/verify", productHandler.RazorpayVerify)
 	}
 
 	//api.POST("/order/verify", productHandler.RazorpayVerify)
