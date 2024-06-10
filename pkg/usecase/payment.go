@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"glamgrove/pkg/domain"
 	interfaces "glamgrove/pkg/repository/interfaces"
 	service "glamgrove/pkg/usecase/interfaces"
@@ -19,7 +18,6 @@ func NewPaymentUseCase(repo interfaces.PaymentRepository) service.PaymentService
 }
 
 func (p *PaymentUseCase) AddPaymentMethod(c context.Context, payment domain.PaymentMethod) (domain.PaymentMethod, error) {
-	fmt.Println("use", payment)
 
 	// if payment.PaymentMethod == "1" && pay.OrderTotal > 1000 {
 	// 	return domain.PaymentMethod{}, errors.New("Cash on delivery is not allowed for orders above 1000")
@@ -27,7 +25,7 @@ func (p *PaymentUseCase) AddPaymentMethod(c context.Context, payment domain.Paym
 	// }
 
 	err := p.PaymentRepository.FindPaymentMethod(c, payment)
-	fmt.Println(err)
+
 	if err == nil {
 		return domain.PaymentMethod{}, errors.New("payment method already existsssssssssss")
 	}

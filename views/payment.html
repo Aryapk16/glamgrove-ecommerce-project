@@ -50,7 +50,7 @@
             console.log(response.razorpay_payment_id, " : ", response.razorpay_order_id, " ", response.razorpay_signature, " ",userid," ");
             $.ajax({
                 type: "POST",
-                url: 'http://localhost:8000/orderrazo/verify',
+                url: 'https://aryapk.site/orderrazo/verify',
                 data: JSON.stringify({
                     "razorpay_payment_id": response.razorpay_payment_id,
                     "razorpay_order_id": response.razorpay_order_id,

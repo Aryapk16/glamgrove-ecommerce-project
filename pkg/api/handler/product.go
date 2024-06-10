@@ -204,22 +204,40 @@ func (p *ProductHandler) AddItemImage(c *gin.Context) {
 // @Router /products/   [get]
 // @Router  /admin/products/list [get]
 func (p *ProductHandler) ListProducts(c *gin.Context) {
-	count, err1 := utils.StringToUint(c.Query("count"))
-	if err1 != nil {
-		response := response.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
-		c.JSON(http.StatusBadRequest, response)
-		return
+
+	var count, pageNumber uint
+	var err error
+
+	countFromQuery := c.Query("count")
+	pageNumberFromQuery := c.Query("page_number")
+
+	if countFromQuery != "" {
+		count, err = utils.StringToUint(c.Query("count"))
+		if err != nil {
+			response := response.ErrorResponse(400, "invalid inputs", err.Error(), nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+	} else {
+		count = 10
 	}
-	pageNumber, err2 := utils.StringToUint(c.Query("page_number"))
-	if err2 != nil {
-		response := response.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
-		c.JSON(http.StatusBadRequest, response)
-		return
+
+	if pageNumberFromQuery != "" {
+		pageNumber, err = utils.StringToUint(c.Query("page_number"))
+		if err != nil {
+			response := response.ErrorResponse(400, "invalid inputs", err.Error(), nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+	} else {
+		pageNumber = 1
 	}
+
 	pagination := request.ReqPagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
+
 	products, err := p.ProductService.GetProducts(c, pagination)
 	if err != nil {
 		response := response.ErrorResponse(500, "failed to get all products", err.Error(), nil)

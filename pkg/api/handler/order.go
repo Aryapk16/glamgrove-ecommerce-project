@@ -42,28 +42,37 @@ func NewOrderHandler(orderUseCase service.OrderService) *OrderHandler {
 func (o *OrderHandler) CreateOrder(c *gin.Context) {
 	var order domain.Order
 
-	addressID, err := strconv.Atoi(c.Query("address_id"))
-	if err != nil {
-		response := response.ErrorResponse(400, "Failed to get address id", err.Error(), order)
+	addressIdFromQuery := c.Query("address_id")
+	paymentMethodIdFromQuery := c.Query("paymentmethod_id")
+
+	if addressIdFromQuery == "" || paymentMethodIdFromQuery == "" {
+		response := response.ErrorResponse(400, "address_id and paymentmethod_id is mandatory", errors.New("address_id and paymentmethod_id not found in the url").Error(), nil)
 		c.JSON(400, response)
 		return
 	}
-	PaymentMetodId, err := strconv.Atoi(c.Query("paymentmethod_id"))
+
+	addressID, err := strconv.Atoi(addressIdFromQuery)
 	if err != nil {
-		response := response.ErrorResponse(400, "Failed to get payment method id", err.Error(), order)
+		response := response.ErrorResponse(400, "Failed to get address id", err.Error(), nil)
+		c.JSON(400, response)
+		return
+	}
+	paymentMetodId, err := strconv.Atoi(c.Query("paymentmethod_id"))
+	if err != nil {
+		response := response.ErrorResponse(400, "Failed to get payment method id", err.Error(), nil)
 		c.JSON(400, response)
 		return
 	}
 	userId := utils.GetUserIdFromContext(c)
 	totalAmount, err := o.OrderService.GetTotalAmount(c, userId)
 	if err != nil {
-		response := response.ErrorResponse(400, "Failed to get total amount", err.Error(), order)
+		response := response.ErrorResponse(400, "Failed to get total amount", err.Error(), nil)
 		c.JSON(400, response)
 		return
 	}
 	order.Total_Amount = totalAmount
 	order.Address_Id = addressID
-	order.PaymentMethodID = PaymentMetodId
+	order.PaymentMethodID = paymentMetodId
 	order.Payment_Status = "Pending"
 	order.Order_Status = "Order Created"
 	order.DeliveryStatus = "Pending"
@@ -271,7 +280,14 @@ func (o *OrderHandler) PlaceOrder(c *gin.Context) {
 // checkout
 func (o *OrderHandler) CheckOut(c *gin.Context) {
 	var razorPay request.RazorPayReq
-	order_id, err := strconv.Atoi(c.Query("order_id"))
+
+	orderIdFromQuery := c.Query("order_id")
+	if orderIdFromQuery == "" {
+		response := response.ErrorResponse(400, "Please add order_id  as params", errors.New("orderID not found").Error(), "")
+		c.JSON(400, response)
+		return
+	}
+	order_id, err := strconv.Atoi(orderIdFromQuery)
 	if err != nil {
 		response := response.ErrorResponse(400, "Please add order_id  as params", err.Error(), "")
 		c.JSON(400, response)
@@ -283,6 +299,7 @@ func (o *OrderHandler) CheckOut(c *gin.Context) {
 		c.JSON(400, response)
 		return
 	}
+	fmt.Println("paymid", payment_method_id)
 	if payment_method_id == 1 {
 		if razorPay.Total_Amount >= 1000 {
 			response := response.ErrorResponse(400, "above 1000 cannot be placed .please select another ", errors.New("payment method error").Error(), "")
@@ -550,7 +567,7 @@ func (c *ProductHandler) RazorpayVerify(ctx *gin.Context) {
 		return
 	}
 
-	response := response.SuccessResponse(200, "successfully payment completed and order approved", data)
+	response := response.SuccessResponse(200, "successfully payment completed and order approved", gin.H{"message": "Payment Verifeid"})
 	ctx.JSON(200, response)
 
 }
