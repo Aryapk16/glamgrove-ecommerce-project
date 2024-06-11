@@ -7,6 +7,9 @@ run:
 swag:
 	swag init -g ./cmd/api/main.go ./
 
+build :
+    go build cmd/api/main.go
+
 test: ## Run testing
 	go test ./...
 
