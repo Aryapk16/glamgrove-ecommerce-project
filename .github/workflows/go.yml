@@ -1,0 +1,47 @@
+name: Glamgrove-Ecommerce-CI/CD
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21.4'
+
+    - name: Build
+      run: make build
+
+    - name: Test
+      run: make test
+
+    - name: Configure SSH
+      uses: webfactory/ssh-agent@v0.5.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PUBLIC_IP }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          export PATH=$PATH:/usr/local/go/bin
+          cd glamgrove-ecommerce-project
+          git pull 
+          make build
+          sudo systemctl restart glamgrove.service
+
+    
+  
+
+          
