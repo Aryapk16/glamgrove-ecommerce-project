@@ -1,5 +1,4 @@
-
-        name: glamgrove
+name: glamgrove
 
 on:
   push:
