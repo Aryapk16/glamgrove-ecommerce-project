@@ -1,4 +1,4 @@
-name: Glamgrove-Ecommerce
+name: Glamgrove-Ecommerce 
 on:
   push:
     branches: [ "main" ]
@@ -34,7 +34,7 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to AWS EC2
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@main
       with:
         host: ${{ secrets.PUBLIC_IP }}
         username: ubuntu
