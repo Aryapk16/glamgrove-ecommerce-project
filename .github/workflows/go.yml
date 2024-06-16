@@ -28,11 +28,6 @@ jobs:
     - name: Test
       run: make test
 
-    - name: Configure SSH
-      uses: webfactory/ssh-agent@v0.5.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
     - name: Deploy to AWS EC2
       uses: appleboy/ssh-action@master
       with:
@@ -44,4 +39,4 @@ jobs:
           cd glamgrove-ecommerce-project
           git pull 
           make build
-         # sudo systemctl restart glamgrove.service
+          sudo systemctl restart glamgrove.service
