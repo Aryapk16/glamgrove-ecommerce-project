@@ -35,7 +35,6 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          export PATH=$PATH:/usr/local/go/bin
           cd glamgrove-ecommerce-project
           git pull 
           make build
