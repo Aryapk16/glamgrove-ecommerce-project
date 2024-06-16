@@ -33,9 +33,8 @@ jobs:
       with:
         host: ${{ secrets.PUBLIC_IP }}
         username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEYs }}
+        key: ${{ secrets.SSH_PRIVATE_KEYS }}
         script: |
-          export PATH=$PATH:/usr/local/go/bin
           cd glamgrove-ecommerce-project
           git pull 
           make build
