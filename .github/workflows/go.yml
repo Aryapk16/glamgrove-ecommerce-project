@@ -1,4 +1,4 @@
-name: Glamgrove-Ecommerce 
+name: Glamgrove-Ecommerce CI/CD
 on:
   push:
     branches: [ "main" ]
@@ -30,7 +30,7 @@ jobs:
 
     - name: Deploy to AWS EC2
       env:
-        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEYS }}
+        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         PUBLIC_IP: ${{ secrets.PUBLIC_IP }}
       run: |
         echo "$PRIVATE_KEY" > private_key
@@ -41,3 +41,4 @@ jobs:
           make build
           sudo systemctl restart glamgrove.service
         EOF
+      shell: bash
