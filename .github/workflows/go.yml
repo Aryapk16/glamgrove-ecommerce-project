@@ -1,4 +1,5 @@
-name: Glamgrove-Ecommerce CI/CD
+name: Go
+
 on:
   push:
     branches: [ "main" ]
@@ -6,36 +7,17 @@ on:
     branches: [ "main" ]
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21.4'
+        go-version: '1.21'
 
-    - name: Install Make
+    - name: test
       run: |
-        sudo apt update
-        sudo apt install -y make
-
-    - name: Build
-      run: make build
-
-    - name: Test
-      run: make test
-
-    - name: Deploy to AWS EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.PUBLIC_IP_2 }}
-        username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEY_TWO }}
-        script: |
-          cd glamgrove-ecommerce-project
-          git pull 
-          make build
-         
+        go test ./... -cover
