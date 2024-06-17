@@ -30,16 +30,11 @@ jobs:
 
     - name: Deploy to AWS EC2
       env:
-        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        PUBLIC_IP: ${{ secrets.PUBLIC_IP }}
+        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_TWO }}
+        PUBLIC_IP: ${{ secrets.PUBLIC_IP_2 }}
       run: |
-        # Write the private key to a file
         echo "$PRIVATE_KEY" > private_key
-        # Ensure the private key file has the correct permissions
         chmod 600 private_key
-        # Display the contents of the private key for debugging (remove this after confirming)
-        cat private_key
-        # Try to SSH into the server
         ssh -o StrictHostKeyChecking=no -i private_key ubuntu@$PUBLIC_IP << 'EOF'
           cd glamgrove-ecommerce-project
           git pull
