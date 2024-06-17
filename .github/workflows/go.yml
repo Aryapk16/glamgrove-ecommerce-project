@@ -29,13 +29,15 @@ jobs:
       run: make test
 
     - name: Deploy to AWS EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.PUBLIC_IP }}
-        username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEYS }}
-        script: |
+      env:
+        PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEYS }}
+        PUBLIC_IP: ${{ secrets.PUBLIC_IP }}
+      run: |
+        echo "$PRIVATE_KEY" > private_key
+        chmod 600 private_key
+        ssh -o StrictHostKeyChecking=no -i private_key ubuntu@$PUBLIC_IP << 'EOF'
           cd glamgrove-ecommerce-project
-          git pull 
+          git pull
           make build
           sudo systemctl restart glamgrove.service
+        EOF
