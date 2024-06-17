@@ -31,9 +31,9 @@ jobs:
     - name: Deploy to AWS EC2
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.PUBLIC_IP }}
+        host: ${{ secrets.PUBLIC_IP_2 }}
         username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEYS }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_TWO }}
         script: |
           cd glamgrove-ecommerce-project
           git pull 
