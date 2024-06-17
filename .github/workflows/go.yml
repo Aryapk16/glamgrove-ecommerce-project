@@ -1,4 +1,4 @@
-name: Glamgrove-Ecommerce CI/CD
+name: Glamgrove-Ecommerce 
 on:
   push:
     branches: [ "main" ]
