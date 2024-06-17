@@ -38,4 +38,4 @@ jobs:
           cd glamgrove-ecommerce-project
           git pull 
           make build
-          sudo systemctl restart glamgrove.service
+         ## sudo systemctl restart glamgrove.service
