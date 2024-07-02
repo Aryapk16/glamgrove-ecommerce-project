@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: postgres-config
 data:
-  postgres-db: glamgrove    # Replace with your database name
-  postgres-host: glamgrove-service   # Replace with the service name of your PostgreSQL deployment
-  postgres-port: "5432"     # Replace with your PostgreSQL port number
+  postgres-db: glamgrove    
+  postgres-host: glamgrove-service  
+  postgres-port: "5432"     

@@ -21,9 +21,9 @@ spec:
         - containerPort: 5432
         env:
           - name: POSTGRES_PASSWORD
-            value: "arya@2002"  # Replace with your PostgreSQL password
+            value: "arya@2002"  
           - name: POSTGRES_DB
-            value: "glamgrove"  # Replace with your PostgreSQL database name
+            value: "glamgrove"  
 
 ---
 

@@ -18,13 +18,19 @@ spec:
       - name: glamgrove
         image: glamgrove/glamgrove:latest  
         ports:
-        - containerPort: 8080
+        - containerPort: 8000  
         env:
         - name: DB_HOST
           value: "postgres-service"  
         - name: DB_NAME
-          value: "glamgrove"  # Replace with your PostgreSQL database name
+          value: "glamgrove"
         - name: DB_USER
-          value: "postgres"  # Replace with your PostgreSQL username
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db_user
         - name: DB_PASSWORD
-          value: "arya@2002"  # Replace with your PostgreSQL password
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db_password
