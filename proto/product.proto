@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "glamgrove/productpb;productpb";
+
+package productpb;
+
+service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+    rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+}
+
+message CreateProductRequest {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+}
+
+message CreateProductResponse {
+    string id = 1;
+}
+
+message GetProductRequest {
+    string id = 1;
+}
+
+message GetProductResponse {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+}

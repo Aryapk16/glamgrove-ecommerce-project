@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option go_package = "glamgrove/userpb;userpb";
+
+package userpb;
+
+service UserService {
+    rpc GetUser (UserRequest) returns (UserResponse);
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+}
+
+message UserRequest {
+    string user_id = 1;
+}
+
+message UserResponse {
+    string user_id = 1;
+    string user_name = 2;
+}
+
+message CreateUserRequest {
+    string user_name = 1;
+}
+
+message CreateUserResponse {
+    string user_id = 1;
+}
